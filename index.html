@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FC26 Roulette Draft Tool</title>
+    <meta name="description" content="Roulette-style draft tool for EA Sports FC 26">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], display: ['Orbitron', 'sans-serif'] },
+                    colors: { neon: '#00ff88', 'neon-dim': '#00cc6a', accent: '#0088ff', danger: '#ff4444', surface: { DEFAULT: '#0d1117', deep: '#060a13', raised: '#161b22' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #060a13;
+        }
+
+        .wheel-container {
+            position: relative;
+            height: 240px;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #0d1117;
+            border: 1px solid rgba(0, 255, 136, 0.15);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.05), inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .wheel-strip {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            will-change: transform;
+        }
+
+        .wheel-item {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #c9d1d9;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 0 16px;
+            text-align: center;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .wheel-item .sub {
+            font-size: 0.7rem;
+            color: #8b949e;
+            font-weight: 400;
+        }
+
+        .wheel-selector {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+            height: 80px;
+            border-top: 2px solid #00ff88;
+            border-bottom: 2px solid #00ff88;
+            background: rgba(0, 255, 136, 0.04);
+            pointer-events: none;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+        }
+
+        .wheel-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to bottom, #0d1117, transparent);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .wheel-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to top, #0d1117, transparent);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .wheel-item-selected {
+            color: #00ff88 !important;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
+            }
+        }
+
+        #spinBtn:not(:disabled):not(.spinning) {
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        .history-entry {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8)
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+
+        .result-pop {
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .pos-tab {
+            transition: all 0.2s;
+        }
+
+        .pos-tab.active {
+            background: #00ff88 !important;
+            color: #060a13 !important;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .manager-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .manager-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-overlay {
+            transition: opacity 0.3s;
+        }
+
+        .modal-content {
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        input[type=number]::-webkit-inner-spin-button {
+            opacity: 1;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-gray-200 min-h-screen">
+    <div id="app" class="max-w-5xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8">
+            <div>
+                <h1 id="main-heading" class="font-display text-2xl md:text-3xl font-bold tracking-wider text-neon">FC26
+                    ROULETTE DRAFT</h1>
+                <p class="text-gray-500 text-sm mt-1">Spin the wheels. Build your squad.</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="editRosterBtn" onclick="openRosterModal()"
+                    class="px-4 py-2 rounded-lg bg-surface-raised border border-gray-700 text-sm hover:border-neon hover:text-neon transition-all">✏️
+                    Edit Roster</button>
+            </div>
+        </header>
+
+        <!-- Progress -->
+        <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2"><span class="text-gray-400">Draft Progress</span><span
+                    id="progressText" class="text-neon font-semibold">0 / 16</span></div>
+            <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
+                <div id="progressBar"
+                    class="h-full bg-gradient-to-r from-neon-dim to-neon rounded-full transition-all duration-500"
+                    style="width:0%"></div>
+            </div>
+        </div>
+
+        <!-- Position Tabs -->
+        <div class="flex flex-wrap gap-2 mb-6" id="positionTabs">
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700 active"
+                data-pos="GK" onclick="selectPosition('GK')">🧤 GK</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="LB" onclick="selectPosition('LB')">🛡️ LB</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="CB1" onclick="selectPosition('CB1')">🛡️ CB 1</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="CB2" onclick="selectPosition('CB2')">🛡️ CB 2</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="RB" onclick="selectPosition('RB')">🛡️ RB</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="CM1" onclick="selectPosition('CM1')">⚙️ CM 1</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="CM2" onclick="selectPosition('CM2')">⚙️ CM 2</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="CM3" onclick="selectPosition('CM3')">⚙️ CM 3</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="LW" onclick="selectPosition('LW')">⚡ LW</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="ST" onclick="selectPosition('ST')">⚽ ST</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="RW" onclick="selectPosition('RW')">⚡ RW</button>
+        </div>
+
+        <!-- Status -->
+        <div id="statusMsg" class="text-center text-gray-400 text-sm mb-4">Select a position and spin!</div>
+
+        <!-- Wheels -->
+        <div class="flex flex-col md:flex-row gap-6 items-center justify-center mb-6">
+            <div class="w-full md:w-72">
+                <div class="text-center text-xs font-bold tracking-widest text-gray-500 mb-2 uppercase">FC Player</div>
+                <div class="wheel-container" id="playerWheel">
+                    <div class="wheel-strip" id="playerStrip"></div>
+                    <div class="wheel-selector"></div>
+                </div>
+            </div>
+            <div class="hidden md:flex flex-col items-center gap-2 text-gray-600"><span class="text-3xl">⚡</span><span
+                    class="text-xs tracking-widest">DRAFT</span></div>
+            <div class="w-full md:w-72">
+                <div class="text-center text-xs font-bold tracking-widest text-gray-500 mb-2 uppercase">Manager</div>
+                <div class="wheel-container" id="managerWheel">
+                    <div class="wheel-strip" id="managerStrip"></div>
+                    <div class="wheel-selector"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spin Button -->
+        <div class="text-center mb-10">
+            <button id="spinBtn" onclick="handleSpin()"
+                class="px-12 py-4 rounded-xl font-display font-bold text-lg tracking-[3px] bg-gradient-to-br from-surface to-surface-raised border-2 border-neon text-neon hover:bg-neon hover:text-surface-deep transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:border-gray-700 disabled:text-gray-600 disabled:shadow-none">🎰
+                SPIN</button>
+        </div>
+
+        <!-- Result Announcement -->
+        <div id="resultBox" class="hidden mb-8 p-6 rounded-xl bg-surface border border-neon/20 text-center result-pop">
+            <div class="text-4xl mb-2">🎯</div>
+            <div id="resultText" class="text-xl font-bold text-neon"></div>
+            <div id="resultSub" class="text-sm text-gray-400 mt-1"></div>
+        </div>
+
+        <!-- Team Cards -->
+        <h2 class="font-display text-lg tracking-wider text-gray-300 mb-4">MANAGER SQUADS</h2>
+        <div id="teamCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10"></div>
+
+        <!-- Draft History -->
+        <div class="mb-8">
+            <h2 class="font-display text-lg tracking-wider text-gray-300 mb-4">DRAFT HISTORY</h2>
+            <div id="historyList" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
+            <div id="historyEmpty" class="text-gray-600 text-sm text-center py-6">No picks yet. Start spinning!</div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap gap-3 justify-center pb-10">
+            <button onclick="copyResults()"
+                class="px-6 py-3 rounded-lg bg-surface-raised border border-gray-700 text-sm font-semibold hover:border-accent hover:text-accent transition-all">📋
+                Copy Draft Results</button>
+            <button onclick="resetDraft()"
+                class="px-6 py-3 rounded-lg bg-surface-raised border border-gray-700 text-sm font-semibold hover:border-danger hover:text-danger transition-all">🔄
+                Reset Entire Draft</button>
+        </div>
+    </div>
+
+    <!-- Roster Editor Modal -->
+    <div id="rosterModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm modal-overlay">
+        <div
+            class="bg-surface-raised rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col mx-4 border border-gray-700 modal-content">
+            <div class="flex justify-between items-center p-5 border-b border-gray-800">
+                <h2 class="font-display text-lg tracking-wider text-neon">EDIT ROSTER</h2>
+                <button onclick="closeRosterModal()"
+                    class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            <div class="flex gap-2 p-4 border-b border-gray-800" id="modalPosTabs"></div>
+            <div class="flex-1 overflow-y-auto p-5" id="modalBody"></div>
+            <div class="p-4 border-t border-gray-800 flex justify-between">
+                <button onclick="addPlayerToRoster()"
+                    class="px-4 py-2 rounded-lg bg-surface border border-gray-700 text-sm hover:border-neon hover:text-neon transition-all">+
+                    Add Player</button>
+                <button onclick="saveAndCloseRoster()"
+                    class="px-6 py-2 rounded-lg bg-neon text-surface-deep font-bold text-sm hover:bg-neon-dim transition-all">Save
+                    & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ====== DATA ====== */
+        const managers = ["BDN", "Carl", "Killer", "Rio"];
+
+        let fc26Roster = {
+            GK: [
+                { name: "Gianluigi Donnarumma", rating: 89, club: "Manchester City" },
+                { name: "Alisson Becker", rating: 89, club: "Liverpool" },
+                { name: "Thibaut Courtois", rating: 89, club: "Real Madrid" },
+                { name: "Jan Oblak", rating: 88, club: "Atletico Madrid" }
+            ],
+            LB: [
+                { name: "Theo Hernández", rating: 86, club: "AC Milan" },
+                { name: "Alphonso Davies", rating: 86, club: "Bayern Munich" },
+                { name: "Joško Gvardiol", rating: 86, club: "Manchester City" },
+                { name: "Alejandro Grimaldo", rating: 85, club: "Bayer Leverkusen" }
+            ],
+            CB1: [
+                { name: "Virgil van Dijk", rating: 90, club: "Liverpool" },
+                { name: "Gabriel Magalhães", rating: 88, club: "Arsenal" },
+                { name: "Rúben Dias", rating: 88, club: "Manchester City" },
+                { name: "William Saliba", rating: 88, club: "Arsenal" }
+            ],
+            CB2: [
+                { name: "Alessandro Bastoni", rating: 87, club: "Inter Milan" },
+                { name: "Antonio Rüdiger", rating: 87, club: "Real Madrid" },
+                { name: "Marquinhos", rating: 87, club: "PSG" },
+                { name: "Dayot Upamecano", rating: 85, club: "Bayern Munich" }
+            ],
+            RB: [
+                { name: "Achraf Hakimi", rating: 89, club: "PSG" },
+                { name: "Trent Alexander-Arnold", rating: 87, club: "Real Madrid" },
+                { name: "Jules Koundé", rating: 86, club: "Barcelona" },
+                { name: "Jeremie Frimpong", rating: 85, club: "Bayer Leverkusen" }
+            ],
+            CM1: [
+                { name: "Rodri", rating: 90, club: "Manchester City" },
+                { name: "Jude Bellingham", rating: 90, club: "Real Madrid" },
+                { name: "Pedri", rating: 89, club: "Barcelona" },
+                { name: "Federico Valverde", rating: 89, club: "Real Madrid" }
+            ],
+            CM2: [
+                { name: "Martin Ødegaard", rating: 89, club: "Arsenal" },
+                { name: "Bruno Fernandes", rating: 88, club: "Manchester United" },
+                { name: "Florian Wirtz", rating: 88, club: "Bayer Leverkusen" },
+                { name: "Jamal Musiala", rating: 88, club: "Bayern Munich" }
+            ],
+            CM3: [
+                { name: "Declan Rice", rating: 87, club: "Arsenal" },
+                { name: "Vitinha", rating: 87, club: "PSG" },
+                { name: "Luka Modrić", rating: 87, club: "Real Madrid" },
+                { name: "Kevin De Bruyne", rating: 86, club: "Napoli" }
+            ],
+            LW: [
+                { name: "Vinícius Jr.", rating: 90, club: "Real Madrid" },
+                { name: "Raphinha", rating: 88, club: "Barcelona" },
+                { name: "Phil Foden", rating: 88, club: "Manchester City" },
+                { name: "Leroy Sané", rating: 86, club: "Bayern Munich" }
+            ],
+            ST: [
+                { name: "Kylian Mbappé", rating: 91, club: "Real Madrid" },
+                { name: "Erling Haaland", rating: 90, club: "Manchester City" },
+                { name: "Harry Kane", rating: 89, club: "Bayern Munich" },
+                { name: "Lautaro Martínez", rating: 88, club: "Inter Milan" }
+            ],
+            RW: [
+                { name: "Mohamed Salah", rating: 91, club: "Liverpool" },
+                { name: "Bukayo Saka", rating: 89, club: "Arsenal" },
+                { name: "Lamine Yamal", rating: 88, club: "Barcelona" },
+                { name: "Ousmane Dembélé", rating: 88, club: "PSG" }
+            ]
+        };
+
+        /* ====== STATE ====== */
+        const POSITIONS = ["GK", "LB", "CB1", "CB2", "RB", "CM1", "CM2", "CM3", "LW", "ST", "RW"];
+        const FORMATION = { GK: 1, LB: 1, CB1: 1, CB2: 1, RB: 1, CM1: 1, CM2: 1, CM3: 1, LW: 1, ST: 1, RW: 1 }; // 4-3-3
+        const POS_LABELS = { GK: "GK", LB: "LB", CB1: "CB 1", CB2: "CB 2", RB: "RB", CM1: "CM 1", CM2: "CM 2", CM3: "CM 3", LW: "LW", ST: "ST", RW: "RW" };
+        const TOTAL_PER_MANAGER = 11;
+        const TOTAL_PICKS = managers.length * TOTAL_PER_MANAGER; // 44
+        const ITEM_H = 80;
+        let state = null;
+        let isSpinning = false;
+        let modalPos = "GK";
+        let tempRoster = null;
+
+        function freshState() {
+            return {
+                roster: JSON.parse(JSON.stringify(fc26Roster)),
+                history: [],
+                teams: Object.fromEntries(managers.map(m => [m, Object.fromEntries(POSITIONS.map(p => [p, []]))]))
+            };
+        }
+
+        function saveState() { localStorage.setItem('fc26draft', JSON.stringify(state)); }
+        function loadState() {
+            try {
+                const d = JSON.parse(localStorage.getItem('fc26draft'));
+                if (d && d.roster && d.teams && d.history) {
+                    // Validate teams have arrays (migration from old format)
+                    for (const m of managers) {
+                        if (!d.teams[m]) return null;
+                        for (const p of POSITIONS) {
+                            if (!Array.isArray(d.teams[m][p])) return null;
+                        }
+                    }
+                    return d;
+                }
+            } catch (e) { }
+            return null;
+        }
+
+        /* ====== HELPERS ====== */
+        function getAvailableManagers(pos) {
+            return managers.filter(m => (state.teams[m][pos] || []).length < FORMATION[pos]);
+        }
+
+        function getManagerSquadCount(m) {
+            return POSITIONS.reduce((sum, p) => sum + (state.teams[m][p] || []).length, 0);
+        }
+
+        /* ====== INIT ====== */
+        function init() {
+            const saved = loadState();
+            state = saved || freshState();
+            renderAll();
+        }
+
+        function renderAll() {
+            renderProgress();
+            renderWheelsIdle();
+            renderTeamCards();
+            renderHistory();
+            updateStatus();
+        }
+
+        /* ====== POSITION SELECT ====== */
+        let currentPos = "GK";
+        function selectPosition(pos) {
+            currentPos = pos;
+            document.querySelectorAll('.pos-tab').forEach(t => { t.classList.toggle('active', t.dataset.pos === pos); });
+            renderWheelsIdle();
+            updateStatus();
+        }
+
+        function updateStatus() {
+            const players = state.roster[currentPos] || [];
+            const mgrs = getAvailableManagers(currentPos);
+            const el = document.getElementById('statusMsg');
+            const posLimit = FORMATION[currentPos];
+            if (players.length === 0 || mgrs.length === 0) {
+                el.textContent = `✅ All ${currentPos} slots filled! (${posLimit} per manager)`;
+                el.className = 'text-center text-neon text-sm mb-4 font-semibold';
+                document.getElementById('spinBtn').disabled = true;
+            } else {
+                el.textContent = `${players.length} player(s) · ${mgrs.length} manager(s) need ${currentPos} (${posLimit} per squad)`;
+                el.className = 'text-center text-gray-400 text-sm mb-4';
+                document.getElementById('spinBtn').disabled = false;
+            }
+            if (isSpinning) document.getElementById('spinBtn').disabled = true;
+        }
+
+        /* ====== PROGRESS ====== */
+        function renderProgress() {
+            const done = state.history.length;
+            document.getElementById('progressText').textContent = `${done} / ${TOTAL_PICKS}`;
+            document.getElementById('progressBar').style.width = `${(done / TOTAL_PICKS) * 100}%`;
+        }
+
+        /* ====== WHEELS IDLE ====== */
+        function renderWheelsIdle() {
+            const players = state.roster[currentPos] || [];
+            const mgrs = getAvailableManagers(currentPos);
+            fillWheelIdle('playerStrip', players.map(p => `<span>${p.name}</span><span class="sub">${p.rating} · ${p.club}</span>`));
+            fillWheelIdle('managerStrip', mgrs.map(m => `<span class="text-lg">${m}</span>`));
+        }
+
+        function fillWheelIdle(stripId, htmlArr) {
+            const strip = document.getElementById(stripId);
+            if (htmlArr.length === 0) { strip.innerHTML = '<div class="wheel-item text-gray-600">—</div>'.repeat(3); strip.style.transition = 'none'; strip.style.transform = 'translateY(0)'; return; }
+            let items = []; for (let i = 0; i < 3; i++) items.push(...htmlArr);
+            strip.innerHTML = items.map(h => `<div class="wheel-item">${h}</div>`).join('');
+            strip.style.transition = 'none';
+            const center = htmlArr.length;
+            strip.style.transform = `translateY(${-(center - 1) * ITEM_H}px)`;
+        }
+
+        /* ====== SPIN ====== */
+        async function handleSpin() {
+            const players = state.roster[currentPos] || [];
+            const mgrs = getAvailableManagers(currentPos);
+            if (players.length === 0 || mgrs.length === 0 || isSpinning) return;
+            isSpinning = true;
+            const btn = document.getElementById('spinBtn');
+            btn.disabled = true;
+            btn.classList.add('spinning');
+            btn.textContent = '🎰 SPINNING...';
+            document.getElementById('resultBox').classList.add('hidden');
+
+            const pIdx = Math.floor(Math.random() * players.length);
+            const mIdx = Math.floor(Math.random() * mgrs.length);
+
+            await Promise.all([
+                spinWheel('playerStrip', players.map(p => `<span>${p.name}</span><span class="sub">${p.rating} · ${p.club}</span>`), pIdx, 3500),
+                spinWheel('managerStrip', mgrs.map(m => `<span class="text-lg">${m}</span>`), mIdx, 4200)
+            ]);
+
+            const player = players[pIdx];
+            const manager = mgrs[mIdx];
+
+            // update state: remove player from pool, add to manager's team
+            state.roster[currentPos] = state.roster[currentPos].filter((_, i) => i !== pIdx);
+            state.teams[manager][currentPos].push(player);
+            state.history.push({ manager, player: player.name, rating: player.rating, club: player.club, position: currentPos });
+            saveState();
+
+            // show result
+            const slotsFilled = state.teams[manager][currentPos].length;
+            const slotsMax = FORMATION[currentPos];
+            showResult(manager, player, slotsFilled, slotsMax);
+            renderAll();
+
+            isSpinning = false;
+            btn.classList.remove('spinning');
+            btn.textContent = '🎰 SPIN';
+            updateStatus();
+        }
+
+        function spinWheel(stripId, htmlArr, winnerIdx, duration) {
+            return new Promise(resolve => {
+                const strip = document.getElementById(stripId);
+                const CYCLES = 7;
+                let all = [];
+                for (let i = 0; i < CYCLES; i++) all.push(...htmlArr);
+                for (let i = 0; i <= winnerIdx; i++) all.push(htmlArr[i]);
+                strip.innerHTML = all.map(h => `<div class="wheel-item">${h}</div>`).join('');
+                strip.style.transition = 'none';
+                strip.style.transform = 'translateY(0px)';
+                strip.offsetHeight;
+                const target = CYCLES * htmlArr.length + winnerIdx;
+                const targetY = -(target - 1) * ITEM_H;
+                strip.style.transition = `transform ${duration}ms cubic-bezier(0.12, 0.8, 0.15, 1)`;
+                strip.style.transform = `translateY(${targetY}px)`;
+
+                // tick sounds
+                let lastIdx = -1;
+                const audioCtx = window.__audioCtx;
+                const start = performance.now();
+                function tick() {
+                    if (!audioCtx) { if (performance.now() - start < duration) requestAnimationFrame(tick); return; }
+                    try {
+                        const m = new DOMMatrix(getComputedStyle(strip).transform);
+                        const curIdx = Math.floor(Math.abs(m.m42) / ITEM_H);
+                        if (curIdx !== lastIdx) {
+                            lastIdx = curIdx;
+                            const o = audioCtx.createOscillator();
+                            const g = audioCtx.createGain();
+                            o.connect(g); g.connect(audioCtx.destination);
+                            o.frequency.value = 600 + Math.random() * 300;
+                            g.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+                            o.start(); o.stop(audioCtx.currentTime + 0.03);
+                        }
+                    } catch (e) { }
+                    if (performance.now() - start < duration) requestAnimationFrame(tick);
+                }
+                requestAnimationFrame(tick);
+
+                strip.addEventListener('transitionend', () => {
+                    const items = strip.querySelectorAll('.wheel-item');
+                    if (items[target]) items[target].classList.add('wheel-item-selected');
+                    if (audioCtx) try {
+                        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+                        o.connect(g); g.connect(audioCtx.destination);
+                        o.frequency.value = 523; g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+                        o.start(); o.stop(audioCtx.currentTime + 0.25);
+                    } catch (e) { }
+                    resolve();
+                }, { once: true });
+            });
+        }
+
+        document.addEventListener('click', () => {
+            if (!window.__audioCtx) try { window.__audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { }
+        }, { once: true });
+
+        /* ====== RESULT ====== */
+        function showResult(manager, player, slotsFilled, slotsMax) {
+            const box = document.getElementById('resultBox');
+            box.classList.remove('hidden', 'result-pop');
+            void box.offsetWidth;
+            box.classList.add('result-pop');
+            document.getElementById('resultText').textContent = `${manager} drafts ${player.name}!`;
+            document.getElementById('resultSub').textContent = `${POS_LABELS[currentPos]} · ${player.rating} OVR · ${player.club}`;
+        }
+
+        /* ====== TEAM CARDS ====== */
+        function renderTeamCards() {
+            const c = document.getElementById('teamCards');
+            c.innerHTML = managers.map(m => {
+                const team = state.teams[m];
+                const rows = POSITIONS.map(pos => {
+                    const pl = (team[pos] || [])[0];
+                    return `<div class="flex justify-between items-center py-1.5 px-3 rounded-lg ${pl ? 'bg-surface' : ''}">
+                    <span class="text-[10px] font-bold tracking-wider ${pl ? 'text-neon' : 'text-gray-700'}">${POS_LABELS[pos]}</span>
+                    ${pl ? `<span class="text-xs text-gray-200">${pl.name} <span class="text-gray-500">(${pl.rating})</span></span>` : '<span class="text-xs text-gray-700">—</span>'}
+                </div>`;
+                }).join('');
+                const count = getManagerSquadCount(m);
+                return `<div class="manager-card bg-surface-raised rounded-xl border border-gray-800 overflow-hidden">
+                <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                    <span class="font-display font-bold tracking-wider text-gray-200">${m}</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full ${count === TOTAL_PER_MANAGER ? 'bg-neon/20 text-neon' : 'bg-gray-800 text-gray-500'}">${count}/${TOTAL_PER_MANAGER}</span>
+                </div>
+                <div class="p-2 space-y-0.5">${rows}</div>
+            </div>`;
+            }).join('');
+        }
+
+        /* ====== HISTORY ====== */
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            const empty = document.getElementById('historyEmpty');
+            if (state.history.length === 0) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+            list.innerHTML = [...state.history].reverse().map((h, i) =>
+                `<div class="history-entry flex items-center gap-3 p-3 rounded-lg bg-surface border border-gray-800/50" style="animation-delay:${Math.min(i, 10) * 50}ms">
+                <span class="text-xs font-bold px-2 py-1 rounded bg-surface-raised text-gray-400 tracking-wider">${POS_LABELS[h.position] || h.position}</span>
+                <span class="flex-1 text-sm"><span class="text-neon font-semibold">${h.manager}</span> drafted <span class="text-gray-200 font-medium">${h.player}</span> <span class="text-gray-500">(${h.rating})</span></span>
+            </div>`
+            ).join('');
+        }
+
+        /* ====== COPY RESULTS ====== */
+        function copyResults() {
+            if (state.history.length === 0) { alert('No draft results to copy yet!'); return; }
+            let txt = '🎰 FC26 ROULETTE DRAFT RESULTS (4-3-3) 🎰\n══════════════════════════════════════\n\n';
+            managers.forEach(m => {
+                const team = state.teams[m];
+                const count = getManagerSquadCount(m);
+                txt += `🎮 ${m} (${count}/${TOTAL_PER_MANAGER})\n`;
+                POSITIONS.forEach(pos => {
+                    const label = POS_LABELS[pos];
+                    const pl = (team[pos] || [])[0];
+                    txt += pl ? `  ${label}: ${pl.name} (${pl.rating}) - ${pl.club}\n` : `  ${label}: —\n`;
+                });
+                txt += '\n';
+            });
+            navigator.clipboard.writeText(txt).then(() => {
+                const btn = event.target.closest('button');
+                const orig = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = orig, 2000);
+            });
+        }
+
+        /* ====== RESET ====== */
+        function resetDraft() {
+            if (!confirm('⚠️ Reset the entire draft? This will clear all picks and history.')) return;
+            localStorage.removeItem('fc26draft');
+            state = freshState();
+            document.getElementById('resultBox').classList.add('hidden');
+            currentPos = 'GK';
+            document.querySelectorAll('.pos-tab').forEach(t => t.classList.toggle('active', t.dataset.pos === 'GK'));
+            renderAll();
+        }
+
+        /* ====== ROSTER EDITOR ====== */
+        function openRosterModal() {
+            if (state.history.length > 0 && !confirm('Editing the roster will reset the current draft. Continue?')) return;
+            tempRoster = JSON.parse(JSON.stringify(fc26Roster));
+            modalPos = 'GK';
+            const modal = document.getElementById('rosterModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            renderModalTabs();
+            renderModalBody();
+        }
+
+        function closeRosterModal() {
+            const modal = document.getElementById('rosterModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            tempRoster = null;
+        }
+
+        function saveAndCloseRoster() {
+            readModalInputs();
+            fc26Roster = JSON.parse(JSON.stringify(tempRoster));
+            localStorage.removeItem('fc26draft');
+            state = freshState();
+            closeRosterModal();
+            currentPos = 'GK';
+            document.querySelectorAll('.pos-tab').forEach(t => t.classList.toggle('active', t.dataset.pos === 'GK'));
+            renderAll();
+        }
+
+        function renderModalTabs() {
+            document.getElementById('modalPosTabs').innerHTML = POSITIONS.map(p => {
+                const count = (tempRoster[p] || []).length;
+                const need = FORMATION[p] * managers.length;
+                return `<button onclick="switchModalPos('${p}')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all ${p === modalPos ? 'bg-neon text-surface-deep' : 'bg-surface border border-gray-700 text-gray-400 hover:text-white'}">${p} <span class="opacity-60">(${count}/${need})</span></button>`;
+            }).join('');
+        }
+
+        function switchModalPos(p) {
+            readModalInputs();
+            modalPos = p;
+            renderModalTabs();
+            renderModalBody();
+        }
+
+        function renderModalBody() {
+            const players = tempRoster[modalPos] || [];
+            const need = FORMATION[modalPos] * managers.length;
+            const countInfo = `<div class="mb-4 text-xs text-gray-500 text-center">${players.length} players · Need exactly ${need} for ${managers.length} managers × ${FORMATION[modalPos]} ${modalPos} each</div>`;
+            document.getElementById('modalBody').innerHTML = countInfo + (players.length === 0
+                ? '<p class="text-gray-600 text-center py-8">No players. Click "+ Add Player" below.</p>'
+                : players.map((p, i) => `
+                <div class="flex gap-3 items-center mb-3 p-3 rounded-lg bg-surface border border-gray-800" data-idx="${i}">
+                    <div class="flex-1 space-y-2">
+                        <input type="text" value="${p.name}" data-field="name" placeholder="Player Name" class="w-full bg-surface-raised border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:border-neon focus:outline-none">
+                        <div class="flex gap-2">
+                            <input type="number" value="${p.rating}" data-field="rating" min="1" max="99" class="w-20 bg-surface-raised border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:border-neon focus:outline-none">
+                            <input type="text" value="${p.club}" data-field="club" placeholder="Club" class="flex-1 bg-surface-raised border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:border-neon focus:outline-none">
+                        </div>
+                    </div>
+                    <button onclick="removePlayer(${i})" class="text-gray-600 hover:text-danger text-xl px-2">✕</button>
+                </div>
+            `).join(''));
+        }
+
+        function readModalInputs() {
+            if (!tempRoster) return;
+            const rows = document.querySelectorAll('#modalBody [data-idx]');
+            const updated = [];
+            rows.forEach(row => {
+                const name = row.querySelector('[data-field=name]').value.trim();
+                const rating = parseInt(row.querySelector('[data-field=rating]').value) || 80;
+                const club = row.querySelector('[data-field=club]').value.trim();
+                if (name) updated.push({ name, rating: Math.min(99, Math.max(1, rating)), club });
+            });
+            tempRoster[modalPos] = updated;
+        }
+
+        function addPlayerToRoster() {
+            readModalInputs();
+            tempRoster[modalPos].push({ name: "", rating: 80, club: "" });
+            renderModalBody();
+            const body = document.getElementById('modalBody');
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function removePlayer(idx) {
+            readModalInputs();
+            tempRoster[modalPos].splice(idx, 1);
+            renderModalBody();
+        }
+
+        /* ====== START ====== */
+        init();
+    </script>
+</body>
+
+</html>
