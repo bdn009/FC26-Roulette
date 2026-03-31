@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FC26 Tournament — Match Table & Bracket</title>
+    <meta name="description" content="EA FC 26 Tournament bracket and match logger tool">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], display: ['Orbitron', 'sans-serif'] },
+                    colors: {
+                        neon: '#00ff88', 'neon-dim': '#00cc6a', accent: '#0088ff', danger: '#ff4444',
+                        gold: '#fbbf24', silver: '#94a3b8', bronze: '#d97706',
+                        surface: { DEFAULT: '#0d1117', deep: '#060a13', raised: '#161b22' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #060a13;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulseNeon {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.15); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.3); }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .glow-card {
+            animation: pulseNeon 3s infinite;
+        }
+
+        .bracket-line {
+            border-color: #30363d;
+        }
+
+        .bracket-slot {
+            transition: all 0.2s;
+        }
+
+        .bracket-slot:hover {
+            border-color: #00ff88 !important;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+        }
+
+        .bracket-slot input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #e6edf3;
+            font-size: 0.8rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .bracket-slot input::placeholder {
+            color: #484f58;
+        }
+
+        .bracket-slot input.score-input {
+            width: 28px;
+            text-align: center;
+            font-weight: 700;
+            color: #00ff88;
+            font-size: 0.85rem;
+        }
+
+        .match-entry {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358a6ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+        }
+
+        .pos-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            border-radius: 6px;
+            padding: 0 4px;
+        }
+
+        .nav-link {
+            transition: all 0.25s;
+        }
+
+        .nav-link:hover {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .nav-link.active {
+            color: #00ff88;
+            border-bottom: 2px solid #00ff88;
+        }
+
+        .table-row {
+            transition: background 0.15s;
+        }
+
+        .table-row:hover {
+            background: rgba(0, 255, 136, 0.03);
+        }
+
+        .knockout-connector {
+            position: absolute;
+            border-right: 2px solid #30363d;
+            border-top: 2px solid #30363d;
+            border-bottom: 2px solid #30363d;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .toast.hide {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-gray-200 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-surface-deep/90 backdrop-blur-md border-b border-gray-800/50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="index.html" class="font-display text-lg font-bold tracking-wider text-neon hover:opacity-80 transition-opacity">FC26</a>
+            <div class="flex gap-6">
+                <a href="index.html" class="nav-link text-sm font-semibold text-gray-400 pb-1">🎰 Roulette Draft</a>
+                <a href="tournament.html" class="nav-link active text-sm font-semibold pb-1">🏆 Tournament</a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="app" class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 id="main-heading" class="font-display text-3xl md:text-4xl font-bold tracking-wider text-neon mb-2">
+                FC26 TOURNAMENT</h1>
+            <p class="text-gray-500 text-sm">Round-Robin Group Stage · Knockout Bracket · Glory Awaits</p>
+            <div class="flex justify-center gap-3 mt-4">
+                <span class="text-xs px-3 py-1.5 rounded-full bg-surface-raised border border-gray-700 text-gray-400">
+                    <span class="text-neon font-bold" id="matchCountBadge">0</span>/24 Matches Played
+                </span>
+                <span class="text-xs px-3 py-1.5 rounded-full bg-surface-raised border border-gray-700 text-gray-400">
+                    4 Managers · 4 Legs
+                </span>
+            </div>
+        </header>
+
+        <!-- ============ MATCH LOGGER ============ -->
+        <section class="mb-10 animate-slide-up">
+            <h2 class="font-display text-lg tracking-wider text-gray-300 mb-4 flex items-center gap-2">
+                <span class="text-xl">📝</span> MATCH LOGGER
+            </h2>
+            <div class="bg-surface-raised rounded-2xl border border-gray-800 p-6 glow-card">
+                <div class="flex flex-col md:flex-row gap-4 items-end">
+                    <!-- Home Manager -->
+                    <div class="flex-1 w-full">
+                        <label class="block text-xs font-bold tracking-wider text-gray-500 mb-2 uppercase">Home
+                            Manager</label>
+                        <select id="homeManager"
+                            class="w-full bg-surface border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200 focus:border-neon focus:outline-none cursor-pointer">
+                            <option value="">Select Home</option>
+                            <option value="BDN">BDN</option>
+                            <option value="Carl">Carl</option>
+                            <option value="Killer">Killer</option>
+                            <option value="Rio">Rio</option>
+                        </select>
+                    </div>
+
+                    <!-- Home Goals -->
+                    <div class="w-24">
+                        <label class="block text-xs font-bold tracking-wider text-gray-500 mb-2 uppercase">Goals</label>
+                        <input type="number" id="homeGoals" min="0" max="99" value="0"
+                            class="w-full bg-surface border border-gray-700 rounded-xl px-4 py-3 text-sm text-center text-neon font-bold focus:border-neon focus:outline-none">
+                    </div>
+
+                    <!-- VS Badge -->
+                    <div class="flex items-end pb-3">
+                        <span
+                            class="text-xs font-display font-bold tracking-[3px] text-gray-600 px-3">VS</span>
+                    </div>
+
+                    <!-- Away Goals -->
+                    <div class="w-24">
+                        <label class="block text-xs font-bold tracking-wider text-gray-500 mb-2 uppercase">Goals</label>
+                        <input type="number" id="awayGoals" min="0" max="99" value="0"
+                            class="w-full bg-surface border border-gray-700 rounded-xl px-4 py-3 text-sm text-center text-neon font-bold focus:border-neon focus:outline-none">
+                    </div>
+
+                    <!-- Away Manager -->
+                    <div class="flex-1 w-full">
+                        <label class="block text-xs font-bold tracking-wider text-gray-500 mb-2 uppercase">Away
+                            Manager</label>
+                        <select id="awayManager"
+                            class="w-full bg-surface border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200 focus:border-neon focus:outline-none cursor-pointer">
+                            <option value="">Select Away</option>
+                            <option value="BDN">BDN</option>
+                            <option value="Carl">Carl</option>
+                            <option value="Killer">Killer</option>
+                            <option value="Rio">Rio</option>
+                        </select>
+                    </div>
+
+                    <!-- Submit -->
+                    <button id="submitMatchBtn" onclick="submitMatch()"
+                        class="px-8 py-3 rounded-xl font-display font-bold text-sm tracking-[2px] bg-gradient-to-br from-surface to-surface-raised border-2 border-neon text-neon hover:bg-neon hover:text-surface-deep transition-all duration-300 whitespace-nowrap">
+                        ⚡ SUBMIT
+                    </button>
+                </div>
+
+                <!-- Points reminder -->
+                <div class="mt-4 flex flex-wrap gap-4 text-[11px] text-gray-600">
+                    <span>🏆 Win = <span class="text-neon">2 pts</span></span>
+                    <span>🤝 Draw = <span class="text-accent">1 pt</span></span>
+                    <span>❌ Loss = <span class="text-danger">0 pts</span></span>
+                    <span>⚽ Each Goal = <span class="text-gold">+0.5 pts</span></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ MATCHDAY FIXTURE TRACKER ============ -->
+        <section class="mb-10 animate-slide-up" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-display text-lg tracking-wider text-gray-300 flex items-center gap-2">
+                    <span class="text-xl">📊</span> FIXTURE TRACKER
+                </h2>
+                <span class="text-xs text-gray-600" id="fixtureInfo">Each pairing plays 4 times</span>
+            </div>
+            <div class="bg-surface-raised rounded-2xl border border-gray-800 overflow-hidden">
+                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="fixtureGrid"></div>
+            </div>
+        </section>
+
+        <!-- ============ LEAGUE TABLE ============ -->
+        <section class="mb-10 animate-slide-up" style="animation-delay: 0.15s">
+            <h2 class="font-display text-lg tracking-wider text-gray-300 mb-4 flex items-center gap-2">
+                <span class="text-xl">🏅</span> GROUP STANDINGS
+            </h2>
+            <div class="bg-surface-raised rounded-2xl border border-gray-800 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-800">
+                            <th class="text-left px-5 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase w-8">
+                                #</th>
+                            <th class="text-left px-4 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase">
+                                Manager</th>
+                            <th class="text-center px-3 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                title="Played">P</th>
+                            <th class="text-center px-3 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                title="Won">W</th>
+                            <th class="text-center px-3 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                title="Drawn">D</th>
+                            <th class="text-center px-3 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                title="Lost">L</th>
+                            <th class="text-center px-3 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                title="Goals For">GF</th>
+                            <th class="text-center px-3 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                title="Goals Against">GA</th>
+                            <th class="text-center px-3 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase"
+                                title="Goal Difference">GD</th>
+                            <th
+                                class="text-center px-4 py-4 text-xs font-bold tracking-wider text-neon uppercase">
+                                PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="standingsBody"></tbody>
+                </table>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-4 text-[11px] text-gray-600">
+                <span>Points = (Wins × 2) + (Draws × 1) + (Goals Scored × 0.5)</span>
+            </div>
+        </section>
+
+        <!-- ============ MATCH HISTORY ============ -->
+        <section class="mb-10 animate-slide-up" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-display text-lg tracking-wider text-gray-300 flex items-center gap-2">
+                    <span class="text-xl">📜</span> MATCH HISTORY
+                </h2>
+                <button onclick="clearAllMatches()"
+                    class="text-xs px-3 py-1.5 rounded-lg bg-surface border border-gray-700 text-gray-500 hover:border-danger hover:text-danger transition-all">
+                    🗑️ Clear All
+                </button>
+            </div>
+            <div id="matchHistory" class="space-y-2 max-h-80 overflow-y-auto pr-2"></div>
+            <div id="matchHistoryEmpty" class="text-gray-600 text-sm text-center py-8 bg-surface-raised rounded-2xl border border-gray-800">
+                No matches logged yet. Submit your first result above!
+            </div>
+        </section>
+
+        <!-- ============ KNOCKOUT BRACKET ============ -->
+        <section class="mb-10 animate-slide-up" style="animation-delay: 0.25s">
+            <h2 class="font-display text-lg tracking-wider text-gray-300 mb-4 flex items-center gap-2">
+                <span class="text-xl">🏆</span> KNOCKOUT BRACKET
+            </h2>
+            <p class="text-xs text-gray-600 mb-6">Click any name/score field to edit. Changes auto-save.</p>
+
+            <div class="bg-surface-raised rounded-2xl border border-gray-800 p-6 overflow-x-auto">
+                <!-- Bracket Grid -->
+                <div class="min-w-[900px]">
+                    <!-- Round Labels -->
+                    <div class="grid grid-cols-5 gap-4 mb-6 text-center">
+                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Group Phase
+                        </div>
+                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Semi-Finals
+                        </div>
+                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Grand Final
+                        </div>
+                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Semi-Finals
+                        </div>
+                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Group Phase
+                        </div>
+                    </div>
+
+                    <!-- Bracket Slots -->
+                    <div class="grid grid-cols-5 gap-4 items-center" style="min-height: 400px;">
+                        <!-- Column 1: Group Seeds (Left) -->
+                        <div class="flex flex-col gap-6">
+                            <!-- Seed 1 (1st Place) -->
+                            <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3" data-bracket="seed1">
+                                <div class="text-[10px] font-bold tracking-wider text-gold mb-2 uppercase flex items-center gap-1">
+                                    🥇 1st Place</div>
+                                <input type="text" data-ko="seed1-name" placeholder="1st Place"
+                                    class="mb-1 font-semibold" oninput="saveBracket()">
+                            </div>
+                            <!-- Seed 4 (4th Place) -->
+                            <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3" data-bracket="seed4">
+                                <div class="text-[10px] font-bold tracking-wider text-gray-600 mb-2 uppercase flex items-center gap-1">
+                                    4th Place</div>
+                                <input type="text" data-ko="seed4-name" placeholder="4th Place"
+                                    class="mb-1 font-semibold" oninput="saveBracket()">
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Semi-Final 1 -->
+                        <div class="flex flex-col justify-center">
+                            <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
+                                <div class="text-[10px] font-bold tracking-wider text-accent mb-2 uppercase">Semi-Final
+                                    1</div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
+                                        <input type="text" data-ko="sf1-team1" placeholder="1st Place"
+                                            class="flex-1 font-semibold" oninput="saveBracket()">
+                                        <input type="text" data-ko="sf1-score1" placeholder="-"
+                                            class="score-input" oninput="saveBracket()">
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
+                                        <input type="text" data-ko="sf1-team2" placeholder="4th Place"
+                                            class="flex-1 font-semibold" oninput="saveBracket()">
+                                        <input type="text" data-ko="sf1-score2" placeholder="-"
+                                            class="score-input" oninput="saveBracket()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 3: Final + 3rd Place -->
+                        <div class="flex flex-col gap-6 justify-center">
+                            <!-- Grand Final -->
+                            <div
+                                class="bracket-slot bg-surface rounded-xl border-2 border-neon/30 p-4 shadow-lg shadow-neon/5">
+                                <div
+                                    class="text-[10px] font-display font-bold tracking-[3px] text-neon mb-3 uppercase text-center">
+                                    🏆 Grand Final</div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2.5">
+                                        <input type="text" data-ko="final-team1" placeholder="SF1 Winner"
+                                            class="flex-1 font-bold" oninput="saveBracket()">
+                                        <input type="text" data-ko="final-score1" placeholder="-"
+                                            class="score-input text-base" oninput="saveBracket()">
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2.5">
+                                        <input type="text" data-ko="final-team2" placeholder="SF2 Winner"
+                                            class="flex-1 font-bold" oninput="saveBracket()">
+                                        <input type="text" data-ko="final-score2" placeholder="-"
+                                            class="score-input text-base" oninput="saveBracket()">
+                                    </div>
+                                </div>
+                                <!-- Champion -->
+                                <div class="mt-3 pt-3 border-t border-gray-800 text-center">
+                                    <div class="text-[9px] font-bold tracking-[3px] text-gold uppercase mb-1">Champion
+                                    </div>
+                                    <input type="text" data-ko="champion" placeholder="🏆 ???"
+                                        class="text-center font-display font-bold text-lg !text-gold"
+                                        oninput="saveBracket()">
+                                </div>
+                            </div>
+
+                            <!-- 3rd Place -->
+                            <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
+                                <div class="text-[10px] font-bold tracking-wider text-bronze mb-2 uppercase text-center">
+                                    🥉 3rd Place Match</div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
+                                        <input type="text" data-ko="third-team1" placeholder="SF1 Loser"
+                                            class="flex-1 font-semibold" oninput="saveBracket()">
+                                        <input type="text" data-ko="third-score1" placeholder="-"
+                                            class="score-input" oninput="saveBracket()">
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
+                                        <input type="text" data-ko="third-team2" placeholder="SF2 Loser"
+                                            class="flex-1 font-semibold" oninput="saveBracket()">
+                                        <input type="text" data-ko="third-score2" placeholder="-"
+                                            class="score-input" oninput="saveBracket()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 4: Semi-Final 2 -->
+                        <div class="flex flex-col justify-center">
+                            <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
+                                <div class="text-[10px] font-bold tracking-wider text-accent mb-2 uppercase">Semi-Final
+                                    2</div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
+                                        <input type="text" data-ko="sf2-team1" placeholder="2nd Place"
+                                            class="flex-1 font-semibold" oninput="saveBracket()">
+                                        <input type="text" data-ko="sf2-score1" placeholder="-"
+                                            class="score-input" oninput="saveBracket()">
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
+                                        <input type="text" data-ko="sf2-team2" placeholder="3rd Place"
+                                            class="flex-1 font-semibold" oninput="saveBracket()">
+                                        <input type="text" data-ko="sf2-score2" placeholder="-"
+                                            class="score-input" oninput="saveBracket()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 5: Group Seeds (Right) -->
+                        <div class="flex flex-col gap-6">
+                            <!-- Seed 2 (2nd Place) -->
+                            <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3" data-bracket="seed2">
+                                <div class="text-[10px] font-bold tracking-wider text-silver mb-2 uppercase flex items-center gap-1">
+                                    🥈 2nd Place</div>
+                                <input type="text" data-ko="seed2-name" placeholder="2nd Place"
+                                    class="mb-1 font-semibold" oninput="saveBracket()">
+                            </div>
+                            <!-- Seed 3 (3rd Place) -->
+                            <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3" data-bracket="seed3">
+                                <div class="text-[10px] font-bold tracking-wider text-bronze mb-2 uppercase flex items-center gap-1">
+                                    🥉 3rd Place</div>
+                                <input type="text" data-ko="seed3-name" placeholder="3rd Place"
+                                    class="mb-1 font-semibold" oninput="saveBracket()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auto-fill from standings -->
+                    <div class="mt-6 pt-4 border-t border-gray-800 text-center">
+                        <button onclick="autoFillBracket()"
+                            class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-surface border border-gray-700 text-gray-400 hover:border-neon hover:text-neon transition-all">
+                            ⚡ Auto-Fill Seeds from Standings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ACTIONS ============ -->
+        <div class="flex flex-wrap gap-3 justify-center pb-10">
+            <button onclick="exportResults()"
+                class="px-6 py-3 rounded-lg bg-surface-raised border border-gray-700 text-sm font-semibold hover:border-accent hover:text-accent transition-all">
+                📋 Copy Tournament Results</button>
+            <button onclick="resetTournament()"
+                class="px-6 py-3 rounded-lg bg-surface-raised border border-gray-700 text-sm font-semibold hover:border-danger hover:text-danger transition-all">
+                🔄 Reset Tournament</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <script>
+        /* ====== DATA ====== */
+        const MANAGERS = ["BDN", "Carl", "Killer", "Rio"];
+        const MATCHES_PER_PAIRING = 4;
+        const PAIRINGS = [];
+
+        // Generate all unique pairings
+        for (let i = 0; i < MANAGERS.length; i++) {
+            for (let j = i + 1; j < MANAGERS.length; j++) {
+                PAIRINGS.push([MANAGERS[i], MANAGERS[j]]);
+            }
+        }
+
+        const TOTAL_MATCHES = PAIRINGS.length * MATCHES_PER_PAIRING; // 6 × 4 = 24
+
+        /* ====== STATE ====== */
+        let matches = [];
+        let bracket = {};
+
+        function loadData() {
+            try {
+                matches = JSON.parse(localStorage.getItem('fc26tournament_matches')) || [];
+            } catch { matches = []; }
+            try {
+                bracket = JSON.parse(localStorage.getItem('fc26tournament_bracket')) || {};
+            } catch { bracket = {}; }
+        }
+
+        function saveMatches() {
+            localStorage.setItem('fc26tournament_matches', JSON.stringify(matches));
+        }
+
+        function saveBracket() {
+            const inputs = document.querySelectorAll('[data-ko]');
+            inputs.forEach(inp => { bracket[inp.dataset.ko] = inp.value; });
+            localStorage.setItem('fc26tournament_bracket', JSON.stringify(bracket));
+        }
+
+        function loadBracketInputs() {
+            const inputs = document.querySelectorAll('[data-ko]');
+            inputs.forEach(inp => {
+                if (bracket[inp.dataset.ko]) inp.value = bracket[inp.dataset.ko];
+            });
+        }
+
+        /* ====== COMPUTE STANDINGS ====== */
+        function computeStandings() {
+            const stats = {};
+            MANAGERS.forEach(m => {
+                stats[m] = { name: m, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+            });
+
+            matches.forEach(match => {
+                const home = stats[match.home];
+                const away = stats[match.away];
+                if (!home || !away) return;
+
+                const hg = match.homeGoals;
+                const ag = match.awayGoals;
+
+                home.p++; away.p++;
+                home.gf += hg; home.ga += ag;
+                away.gf += ag; away.ga += hg;
+
+                if (hg > ag) {
+                    home.w++; away.l++;
+                } else if (hg < ag) {
+                    away.w++; home.l++;
+                } else {
+                    home.d++; away.d++;
+                }
+            });
+
+            // Calculate points: Win=2, Draw=1, Loss=0, +0.5 per goal
+            MANAGERS.forEach(m => {
+                const s = stats[m];
+                s.gd = s.gf - s.ga;
+                s.pts = (s.w * 2) + (s.d * 1) + (s.gf * 0.5);
+            });
+
+            // Sort by points desc, then GD, then GF
+            const sorted = Object.values(stats).sort((a, b) => {
+                if (b.pts !== a.pts) return b.pts - a.pts;
+                if (b.gd !== a.gd) return b.gd - a.gd;
+                return b.gf - a.gf;
+            });
+
+            return sorted;
+        }
+
+        /* ====== FIXTURE TRACKER ====== */
+        function getPairingMatchCount(m1, m2) {
+            return matches.filter(match =>
+                (match.home === m1 && match.away === m2) ||
+                (match.home === m2 && match.away === m1)
+            ).length;
+        }
+
+        function renderFixtureTracker() {
+            const grid = document.getElementById('fixtureGrid');
+            grid.innerHTML = PAIRINGS.map(([m1, m2]) => {
+                const count = getPairingMatchCount(m1, m2);
+                const isFull = count >= MATCHES_PER_PAIRING;
+                const dots = Array.from({ length: MATCHES_PER_PAIRING }, (_, i) =>
+                    `<div class="w-2.5 h-2.5 rounded-full ${i < count ? (isFull ? 'bg-neon' : 'bg-accent') : 'bg-gray-700'}"></div>`
+                ).join('');
+                return `<div class="flex items-center justify-between p-3 rounded-xl bg-surface border ${isFull ? 'border-neon/20' : 'border-gray-800'}">
+                    <span class="text-sm font-semibold ${isFull ? 'text-gray-500' : 'text-gray-300'}">${m1} vs ${m2}</span>
+                    <div class="flex items-center gap-2">
+                        <div class="flex gap-1">${dots}</div>
+                        <span class="text-[10px] font-bold ${isFull ? 'text-neon' : 'text-gray-500'}">${count}/${MATCHES_PER_PAIRING}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        /* ====== RENDER STANDINGS TABLE ====== */
+        function renderStandings() {
+            const standings = computeStandings();
+            const tbody = document.getElementById('standingsBody');
+
+            const posStyles = [
+                { badge: 'bg-gold/20 text-gold', text: 'text-gold' },
+                { badge: 'bg-silver/20 text-silver', text: 'text-silver' },
+                { badge: 'bg-bronze/20 text-bronze', text: 'text-bronze' },
+                { badge: 'bg-gray-800 text-gray-500', text: 'text-gray-500' }
+            ];
+
+            tbody.innerHTML = standings.map((s, i) => {
+                const style = posStyles[i] || posStyles[3];
+                const ptsFormatted = s.pts % 1 === 0 ? s.pts : s.pts.toFixed(1);
+                const gdStr = s.gd > 0 ? `+${s.gd}` : s.gd.toString();
+                return `<tr class="table-row border-b border-gray-800/50">
+                    <td class="px-5 py-3.5"><span class="pos-badge ${style.badge}">${i + 1}</span></td>
+                    <td class="px-4 py-3.5 font-bold ${style.text}">${s.name}</td>
+                    <td class="text-center px-3 py-3.5 text-gray-400">${s.p}</td>
+                    <td class="text-center px-3 py-3.5 text-neon font-semibold">${s.w}</td>
+                    <td class="text-center px-3 py-3.5 text-gray-400">${s.d}</td>
+                    <td class="text-center px-3 py-3.5 text-danger">${s.l}</td>
+                    <td class="text-center px-3 py-3.5 text-gray-300 font-medium">${s.gf}</td>
+                    <td class="text-center px-3 py-3.5 text-gray-500">${s.ga}</td>
+                    <td class="text-center px-3 py-3.5 font-semibold ${s.gd > 0 ? 'text-neon' : s.gd < 0 ? 'text-danger' : 'text-gray-500'}">${gdStr}</td>
+                    <td class="text-center px-4 py-3.5 font-display font-bold text-neon text-lg">${ptsFormatted}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        /* ====== RENDER MATCH HISTORY ====== */
+        function renderMatchHistory() {
+            const container = document.getElementById('matchHistory');
+            const empty = document.getElementById('matchHistoryEmpty');
+
+            if (matches.length === 0) {
+                container.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            container.innerHTML = [...matches].reverse().map((m, idx) => {
+                const i = matches.length - 1 - idx;
+                const homeWin = m.homeGoals > m.awayGoals;
+                const awayWin = m.awayGoals > m.homeGoals;
+                const draw = m.homeGoals === m.awayGoals;
+
+                return `<div class="match-entry flex items-center gap-3 p-3 rounded-xl bg-surface border border-gray-800/50" style="animation-delay:${Math.min(idx, 8) * 40}ms">
+                    <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-surface-raised text-gray-500 tracking-wider">#${i + 1}</span>
+                    <div class="flex-1 flex items-center justify-center gap-3 text-sm">
+                        <span class="font-semibold ${homeWin ? 'text-neon' : draw ? 'text-accent' : 'text-gray-400'}">${m.home}</span>
+                        <div class="flex items-center gap-1 px-3 py-1 rounded-lg bg-surface-raised">
+                            <span class="font-display font-bold text-base ${homeWin ? 'text-neon' : 'text-gray-400'}">${m.homeGoals}</span>
+                            <span class="text-gray-600 text-xs mx-1">-</span>
+                            <span class="font-display font-bold text-base ${awayWin ? 'text-neon' : 'text-gray-400'}">${m.awayGoals}</span>
+                        </div>
+                        <span class="font-semibold ${awayWin ? 'text-neon' : draw ? 'text-accent' : 'text-gray-400'}">${m.away}</span>
+                    </div>
+                    <button onclick="deleteMatch(${i})" class="text-gray-700 hover:text-danger transition-colors text-lg px-1" title="Delete match">✕</button>
+                </div>`;
+            }).join('');
+        }
+
+        /* ====== SUBMIT MATCH ====== */
+        function submitMatch() {
+            const home = document.getElementById('homeManager').value;
+            const away = document.getElementById('awayManager').value;
+            const homeGoals = parseInt(document.getElementById('homeGoals').value) || 0;
+            const awayGoals = parseInt(document.getElementById('awayGoals').value) || 0;
+
+            if (!home || !away) {
+                showToast('Please select both managers!', 'danger');
+                return;
+            }
+
+            if (home === away) {
+                showToast('A manager cannot play against themselves!', 'danger');
+                return;
+            }
+
+            // Check if this pairing has already been played 4 times
+            const count = getPairingMatchCount(home, away);
+            if (count >= MATCHES_PER_PAIRING) {
+                showToast(`${home} vs ${away} has already been played ${MATCHES_PER_PAIRING} times!`, 'danger');
+                return;
+            }
+
+            matches.push({ home, away, homeGoals, awayGoals, timestamp: Date.now() });
+            saveMatches();
+            renderAll();
+
+            // Reset inputs
+            document.getElementById('homeGoals').value = 0;
+            document.getElementById('awayGoals').value = 0;
+
+            const label = homeGoals > awayGoals ? `${home} wins!` : awayGoals > homeGoals ? `${away} wins!` : "It's a draw!";
+            showToast(`Match logged: ${home} ${homeGoals} - ${awayGoals} ${away}. ${label}`, 'success');
+        }
+
+        /* ====== DELETE MATCH ====== */
+        function deleteMatch(idx) {
+            if (!confirm(`Delete match #${idx + 1}?`)) return;
+            matches.splice(idx, 1);
+            saveMatches();
+            renderAll();
+            showToast('Match deleted.', 'info');
+        }
+
+        /* ====== CLEAR ALL ====== */
+        function clearAllMatches() {
+            if (!confirm('⚠️ Delete ALL match results? This cannot be undone.')) return;
+            matches = [];
+            saveMatches();
+            renderAll();
+            showToast('All matches cleared.', 'info');
+        }
+
+        /* ====== AUTO-FILL BRACKET ====== */
+        function autoFillBracket() {
+            const standings = computeStandings();
+            if (standings.length < 4) return;
+
+            const s1 = standings[0].name;
+            const s2 = standings[1].name;
+            const s3 = standings[2].name;
+            const s4 = standings[3].name;
+
+            // Seeds
+            setKO('seed1-name', s1);
+            setKO('seed2-name', s2);
+            setKO('seed3-name', s3);
+            setKO('seed4-name', s4);
+
+            // SF matchups: 1st vs 4th, 2nd vs 3rd
+            setKO('sf1-team1', s1);
+            setKO('sf1-team2', s4);
+            setKO('sf2-team1', s2);
+            setKO('sf2-team2', s3);
+
+            saveBracket();
+            showToast('Bracket seeds filled from current standings!', 'success');
+        }
+
+        function setKO(key, val) {
+            bracket[key] = val;
+            const inp = document.querySelector(`[data-ko="${key}"]`);
+            if (inp) inp.value = val;
+        }
+
+        /* ====== EXPORT RESULTS ====== */
+        function exportResults() {
+            const standings = computeStandings();
+            let txt = '🏆 FC26 TOURNAMENT RESULTS 🏆\n══════════════════════════════════════\n\n';
+
+            txt += '📊 GROUP STANDINGS\n';
+            txt += '─────────────────────────────────\n';
+            txt += '#  Manager   P   W   D   L   GF  GA  GD  PTS\n';
+            standings.forEach((s, i) => {
+                const pts = s.pts % 1 === 0 ? s.pts : s.pts.toFixed(1);
+                const gd = s.gd > 0 ? `+${s.gd}` : s.gd;
+                txt += `${i + 1}. ${s.name.padEnd(10)} ${String(s.p).padStart(2)}  ${String(s.w).padStart(2)}  ${String(s.d).padStart(2)}  ${String(s.l).padStart(2)}  ${String(s.gf).padStart(3)} ${String(s.ga).padStart(3)} ${String(gd).padStart(3)}  ${String(pts).padStart(4)}\n`;
+            });
+
+            txt += '\n📜 MATCH RESULTS\n';
+            txt += '─────────────────────────────────\n';
+            matches.forEach((m, i) => {
+                txt += `#${i + 1}: ${m.home} ${m.homeGoals} - ${m.awayGoals} ${m.away}\n`;
+            });
+
+            if (bracket['champion']) {
+                txt += `\n🏆 CHAMPION: ${bracket['champion']}\n`;
+            }
+
+            navigator.clipboard.writeText(txt).then(() => {
+                showToast('Results copied to clipboard!', 'success');
+            });
+        }
+
+        /* ====== RESET ====== */
+        function resetTournament() {
+            if (!confirm('⚠️ Reset the ENTIRE tournament? All matches, bracket, everything.')) return;
+            matches = [];
+            bracket = {};
+            localStorage.removeItem('fc26tournament_matches');
+            localStorage.removeItem('fc26tournament_bracket');
+            document.querySelectorAll('[data-ko]').forEach(inp => inp.value = '');
+            renderAll();
+            showToast('Tournament reset!', 'info');
+        }
+
+        /* ====== TOAST NOTIFICATIONS ====== */
+        function showToast(msg, type = 'info') {
+            const colors = {
+                success: 'border-neon bg-neon/10 text-neon',
+                danger: 'border-danger bg-danger/10 text-danger',
+                info: 'border-accent bg-accent/10 text-accent'
+            };
+            const toast = document.createElement('div');
+            toast.className = `toast px-5 py-3 rounded-xl border text-sm font-medium ${colors[type] || colors.info}`;
+            toast.textContent = msg;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        /* ====== RENDER ALL ====== */
+        function renderAll() {
+            renderStandings();
+            renderFixtureTracker();
+            renderMatchHistory();
+            document.getElementById('matchCountBadge').textContent = matches.length;
+        }
+
+        /* ====== INIT ====== */
+        function init() {
+            loadData();
+            renderAll();
+            loadBracketInputs();
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
