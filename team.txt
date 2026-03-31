@@ -1,0 +1,928 @@
+{
+    "roster": {
+        "GK": [],
+        "LB": [],
+        "CB1": [],
+        "CB2": [],
+        "RB": [],
+        "CM1": [],
+        "CM2": [],
+        "CM3": [],
+        "LW": [],
+        "ST": [],
+        "RW": [],
+        "SUB1": [],
+        "SUB2": [],
+        "SUB3": [],
+        "SUB4": [],
+        "SUB5": []
+    },
+    "history": [
+        {
+            "manager": "Killer",
+            "player": "Jan Oblak",
+            "rating": 88,
+            "club": "Atletico Madrid",
+            "position": "GK"
+        },
+        {
+            "manager": "Rio",
+            "player": "Alisson Becker",
+            "rating": 89,
+            "club": "Liverpool",
+            "position": "GK"
+        },
+        {
+            "manager": "BDN",
+            "player": "Gianluigi Donnarumma",
+            "rating": 89,
+            "club": "Manchester City",
+            "position": "GK"
+        },
+        {
+            "manager": "Carl",
+            "player": "Thibaut Courtois",
+            "rating": 89,
+            "club": "Real Madrid",
+            "position": "GK"
+        },
+        {
+            "manager": "Rio",
+            "player": "Alphonso Davies",
+            "rating": 86,
+            "club": "Bayern Munich",
+            "position": "LB"
+        },
+        {
+            "manager": "Killer",
+            "player": "Joško Gvardiol",
+            "rating": 86,
+            "club": "Manchester City",
+            "position": "LB"
+        },
+        {
+            "manager": "Carl",
+            "player": "Theo Hernández",
+            "rating": 86,
+            "club": "AC Milan",
+            "position": "LB"
+        },
+        {
+            "manager": "BDN",
+            "player": "Alejandro Grimaldo",
+            "rating": 85,
+            "club": "Bayer Leverkusen",
+            "position": "LB"
+        },
+        {
+            "manager": "Rio",
+            "player": "Virgil van Dijk",
+            "rating": 90,
+            "club": "Liverpool",
+            "position": "CB1"
+        },
+        {
+            "manager": "BDN",
+            "player": "Rúben Dias",
+            "rating": 88,
+            "club": "Manchester City",
+            "position": "CB1"
+        },
+        {
+            "manager": "Carl",
+            "player": "William Saliba",
+            "rating": 88,
+            "club": "Arsenal",
+            "position": "CB1"
+        },
+        {
+            "manager": "Killer",
+            "player": "Gabriel Magalhães",
+            "rating": 88,
+            "club": "Arsenal",
+            "position": "CB1"
+        },
+        {
+            "manager": "Carl",
+            "player": "Antonio Rüdiger",
+            "rating": 87,
+            "club": "Real Madrid",
+            "position": "CB2"
+        },
+        {
+            "manager": "BDN",
+            "player": "Marquinhos",
+            "rating": 87,
+            "club": "PSG",
+            "position": "CB2"
+        },
+        {
+            "manager": "Killer",
+            "player": "Alessandro Bastoni",
+            "rating": 87,
+            "club": "Inter Milan",
+            "position": "CB2"
+        },
+        {
+            "manager": "Rio",
+            "player": "Dayot Upamecano",
+            "rating": 85,
+            "club": "Bayern Munich",
+            "position": "CB2"
+        },
+        {
+            "manager": "Carl",
+            "player": "Trent Alexander-Arnold",
+            "rating": 87,
+            "club": "Real Madrid",
+            "position": "RB"
+        },
+        {
+            "manager": "Rio",
+            "player": "Achraf Hakimi",
+            "rating": 89,
+            "club": "PSG",
+            "position": "RB"
+        },
+        {
+            "manager": "Killer",
+            "player": "Jeremie Frimpong",
+            "rating": 85,
+            "club": "Bayer Leverkusen",
+            "position": "RB"
+        },
+        {
+            "manager": "BDN",
+            "player": "Jules Koundé",
+            "rating": 86,
+            "club": "Barcelona",
+            "position": "RB"
+        },
+        {
+            "manager": "Rio",
+            "player": "Rodri",
+            "rating": 90,
+            "club": "Manchester City",
+            "position": "CM1"
+        },
+        {
+            "manager": "BDN",
+            "player": "Federico Valverde",
+            "rating": 89,
+            "club": "Real Madrid",
+            "position": "CM1"
+        },
+        {
+            "manager": "Killer",
+            "player": "Pedri",
+            "rating": 89,
+            "club": "Barcelona",
+            "position": "CM1"
+        },
+        {
+            "manager": "Carl",
+            "player": "Jude Bellingham",
+            "rating": 90,
+            "club": "Real Madrid",
+            "position": "CM1"
+        },
+        {
+            "manager": "BDN",
+            "player": "Jamal Musiala",
+            "rating": 88,
+            "club": "Bayern Munich",
+            "position": "CM2"
+        },
+        {
+            "manager": "Killer",
+            "player": "Florian Wirtz",
+            "rating": 88,
+            "club": "Bayer Leverkusen",
+            "position": "CM2"
+        },
+        {
+            "manager": "Rio",
+            "player": "Bruno Fernandes",
+            "rating": 88,
+            "club": "Manchester United",
+            "position": "CM2"
+        },
+        {
+            "manager": "Carl",
+            "player": "Martin Ødegaard",
+            "rating": 89,
+            "club": "Arsenal",
+            "position": "CM2"
+        },
+        {
+            "manager": "Rio",
+            "player": "Vitinha",
+            "rating": 87,
+            "club": "PSG",
+            "position": "CM3"
+        },
+        {
+            "manager": "Killer",
+            "player": "Declan Rice",
+            "rating": 87,
+            "club": "Arsenal",
+            "position": "CM3"
+        },
+        {
+            "manager": "BDN",
+            "player": "Luka Modrić",
+            "rating": 87,
+            "club": "Real Madrid",
+            "position": "CM3"
+        },
+        {
+            "manager": "Carl",
+            "player": "Kevin De Bruyne",
+            "rating": 86,
+            "club": "Napoli",
+            "position": "CM3"
+        },
+        {
+            "manager": "BDN",
+            "player": "Vinícius Jr.",
+            "rating": 90,
+            "club": "Real Madrid",
+            "position": "LW"
+        },
+        {
+            "manager": "Carl",
+            "player": "Raphinha",
+            "rating": 88,
+            "club": "Barcelona",
+            "position": "LW"
+        },
+        {
+            "manager": "Rio",
+            "player": "Leroy Sané",
+            "rating": 86,
+            "club": "Bayern Munich",
+            "position": "LW"
+        },
+        {
+            "manager": "Killer",
+            "player": "Phil Foden",
+            "rating": 88,
+            "club": "Manchester City",
+            "position": "LW"
+        },
+        {
+            "manager": "Rio",
+            "player": "Mohamed Salah",
+            "rating": 91,
+            "club": "Liverpool",
+            "position": "RW"
+        },
+        {
+            "manager": "Carl",
+            "player": "Ousmane Dembélé",
+            "rating": 88,
+            "club": "PSG",
+            "position": "RW"
+        },
+        {
+            "manager": "Killer",
+            "player": "Bukayo Saka",
+            "rating": 89,
+            "club": "Arsenal",
+            "position": "RW"
+        },
+        {
+            "manager": "BDN",
+            "player": "Lamine Yamal",
+            "rating": 88,
+            "club": "Barcelona",
+            "position": "RW"
+        },
+        {
+            "manager": "Carl",
+            "player": "Harry Kane",
+            "rating": 89,
+            "club": "Bayern Munich",
+            "position": "ST"
+        },
+        {
+            "manager": "Killer",
+            "player": "Lautaro Martínez",
+            "rating": 88,
+            "club": "Inter Milan",
+            "position": "ST"
+        },
+        {
+            "manager": "Rio",
+            "player": "Kylian Mbappé",
+            "rating": 91,
+            "club": "Real Madrid",
+            "position": "ST"
+        },
+        {
+            "manager": "BDN",
+            "player": "Erling Haaland",
+            "rating": 90,
+            "club": "Manchester City",
+            "position": "ST"
+        },
+        {
+            "manager": "Killer",
+            "player": "Ferland Mendy",
+            "rating": 84,
+            "club": "Real Madrid",
+            "position": "SUB1"
+        },
+        {
+            "manager": "BDN",
+            "player": "Nuno Mendes",
+            "rating": 83,
+            "club": "PSG",
+            "position": "SUB1"
+        },
+        {
+            "manager": "Carl",
+            "player": "Marc Cucurella",
+            "rating": 82,
+            "club": "Chelsea",
+            "position": "SUB1"
+        },
+        {
+            "manager": "Rio",
+            "player": "Andrew Robertson",
+            "rating": 84,
+            "club": "Liverpool",
+            "position": "SUB1"
+        },
+        {
+            "manager": "BDN",
+            "player": "Pau Torres",
+            "rating": 84,
+            "club": "Aston Villa",
+            "position": "SUB2"
+        },
+        {
+            "manager": "Killer",
+            "player": "Mats Hummels",
+            "rating": 85,
+            "club": "Roma",
+            "position": "SUB2"
+        },
+        {
+            "manager": "Rio",
+            "player": "Nathan Aké",
+            "rating": 83,
+            "club": "Manchester City",
+            "position": "SUB2"
+        },
+        {
+            "manager": "Carl",
+            "player": "Stefan de Vrij",
+            "rating": 84,
+            "club": "Inter Milan",
+            "position": "SUB2"
+        },
+        {
+            "manager": "Killer",
+            "player": "Benjamin Pavard",
+            "rating": 83,
+            "club": "Inter Milan",
+            "position": "SUB3"
+        },
+        {
+            "manager": "Rio",
+            "player": "Denzel Dumfries",
+            "rating": 83,
+            "club": "Inter Milan",
+            "position": "SUB3"
+        },
+        {
+            "manager": "BDN",
+            "player": "Pedro Porro",
+            "rating": 84,
+            "club": "Tottenham",
+            "position": "SUB3"
+        },
+        {
+            "manager": "Carl",
+            "player": "Kyle Walker",
+            "rating": 84,
+            "club": "AC Milan",
+            "position": "SUB3"
+        },
+        {
+            "manager": "BDN",
+            "player": "Joshua Kimmich",
+            "rating": 86,
+            "club": "Barcelona",
+            "position": "SUB4"
+        },
+        {
+            "manager": "Killer",
+            "player": "N'Golo Kanté",
+            "rating": 84,
+            "club": "Al-Ittihad",
+            "position": "SUB4"
+        },
+        {
+            "manager": "Carl",
+            "player": "Aurélien Tchouaméni",
+            "rating": 86,
+            "club": "Real Madrid",
+            "position": "SUB4"
+        },
+        {
+            "manager": "Rio",
+            "player": "Nicolò Barella",
+            "rating": 87,
+            "club": "Inter Milan",
+            "position": "SUB4"
+        },
+        {
+            "manager": "BDN",
+            "player": "Antoine Griezmann",
+            "rating": 86,
+            "club": "Atletico Madrid",
+            "position": "SUB5"
+        },
+        {
+            "manager": "Killer",
+            "player": "Lionel Messi",
+            "rating": 86,
+            "club": "Inter Miami",
+            "position": "SUB5"
+        },
+        {
+            "manager": "Rio",
+            "player": "Julián Álvarez",
+            "rating": 87,
+            "club": "Atletico Madrid",
+            "position": "SUB5"
+        },
+        {
+            "manager": "Carl",
+            "player": "Cristiano Ronaldo",
+            "rating": 84,
+            "club": "Al-Nassr",
+            "position": "SUB5"
+        }
+    ],
+    "teams": {
+        "BDN": {
+            "GK": [
+                {
+                    "name": "Gianluigi Donnarumma",
+                    "rating": 89,
+                    "club": "Manchester City"
+                }
+            ],
+            "LB": [
+                {
+                    "name": "Alejandro Grimaldo",
+                    "rating": 85,
+                    "club": "Bayer Leverkusen"
+                }
+            ],
+            "CB1": [
+                {
+                    "name": "Rúben Dias",
+                    "rating": 88,
+                    "club": "Manchester City"
+                }
+            ],
+            "CB2": [
+                {
+                    "name": "Marquinhos",
+                    "rating": 87,
+                    "club": "PSG"
+                }
+            ],
+            "RB": [
+                {
+                    "name": "Jules Koundé",
+                    "rating": 86,
+                    "club": "Barcelona"
+                }
+            ],
+            "CM1": [
+                {
+                    "name": "Federico Valverde",
+                    "rating": 89,
+                    "club": "Real Madrid"
+                }
+            ],
+            "CM2": [
+                {
+                    "name": "Jamal Musiala",
+                    "rating": 88,
+                    "club": "Bayern Munich"
+                }
+            ],
+            "CM3": [
+                {
+                    "name": "Luka Modrić",
+                    "rating": 87,
+                    "club": "Real Madrid"
+                }
+            ],
+            "LW": [
+                {
+                    "name": "Vinícius Jr.",
+                    "rating": 90,
+                    "club": "Real Madrid"
+                }
+            ],
+            "ST": [
+                {
+                    "name": "Erling Haaland",
+                    "rating": 90,
+                    "club": "Manchester City"
+                }
+            ],
+            "RW": [
+                {
+                    "name": "Lamine Yamal",
+                    "rating": 88,
+                    "club": "Barcelona"
+                }
+            ],
+            "SUB1": [
+                {
+                    "name": "Nuno Mendes",
+                    "rating": 83,
+                    "club": "PSG"
+                }
+            ],
+            "SUB2": [
+                {
+                    "name": "Pau Torres",
+                    "rating": 84,
+                    "club": "Aston Villa"
+                }
+            ],
+            "SUB3": [
+                {
+                    "name": "Pedro Porro",
+                    "rating": 84,
+                    "club": "Tottenham"
+                }
+            ],
+            "SUB4": [
+                {
+                    "name": "Joshua Kimmich",
+                    "rating": 86,
+                    "club": "Barcelona"
+                }
+            ],
+            "SUB5": [
+                {
+                    "name": "Antoine Griezmann",
+                    "rating": 86,
+                    "club": "Atletico Madrid"
+                }
+            ]
+        },
+        "Carl": {
+            "GK": [
+                {
+                    "name": "Thibaut Courtois",
+                    "rating": 89,
+                    "club": "Real Madrid"
+                }
+            ],
+            "LB": [
+                {
+                    "name": "Theo Hernández",
+                    "rating": 86,
+                    "club": "AC Milan"
+                }
+            ],
+            "CB1": [
+                {
+                    "name": "William Saliba",
+                    "rating": 88,
+                    "club": "Arsenal"
+                }
+            ],
+            "CB2": [
+                {
+                    "name": "Antonio Rüdiger",
+                    "rating": 87,
+                    "club": "Real Madrid"
+                }
+            ],
+            "RB": [
+                {
+                    "name": "Trent Alexander-Arnold",
+                    "rating": 87,
+                    "club": "Real Madrid"
+                }
+            ],
+            "CM1": [
+                {
+                    "name": "Jude Bellingham",
+                    "rating": 90,
+                    "club": "Real Madrid"
+                }
+            ],
+            "CM2": [
+                {
+                    "name": "Martin Ødegaard",
+                    "rating": 89,
+                    "club": "Arsenal"
+                }
+            ],
+            "CM3": [
+                {
+                    "name": "Kevin De Bruyne",
+                    "rating": 86,
+                    "club": "Napoli"
+                }
+            ],
+            "LW": [
+                {
+                    "name": "Raphinha",
+                    "rating": 88,
+                    "club": "Barcelona"
+                }
+            ],
+            "ST": [
+                {
+                    "name": "Harry Kane",
+                    "rating": 89,
+                    "club": "Bayern Munich"
+                }
+            ],
+            "RW": [
+                {
+                    "name": "Ousmane Dembélé",
+                    "rating": 88,
+                    "club": "PSG"
+                }
+            ],
+            "SUB1": [
+                {
+                    "name": "Marc Cucurella",
+                    "rating": 82,
+                    "club": "Chelsea"
+                }
+            ],
+            "SUB2": [
+                {
+                    "name": "Stefan de Vrij",
+                    "rating": 84,
+                    "club": "Inter Milan"
+                }
+            ],
+            "SUB3": [
+                {
+                    "name": "Kyle Walker",
+                    "rating": 84,
+                    "club": "AC Milan"
+                }
+            ],
+            "SUB4": [
+                {
+                    "name": "Aurélien Tchouaméni",
+                    "rating": 86,
+                    "club": "Real Madrid"
+                }
+            ],
+            "SUB5": [
+                {
+                    "name": "Cristiano Ronaldo",
+                    "rating": 84,
+                    "club": "Al-Nassr"
+                }
+            ]
+        },
+        "Killer": {
+            "GK": [
+                {
+                    "name": "Jan Oblak",
+                    "rating": 88,
+                    "club": "Atletico Madrid"
+                }
+            ],
+            "LB": [
+                {
+                    "name": "Joško Gvardiol",
+                    "rating": 86,
+                    "club": "Manchester City"
+                }
+            ],
+            "CB1": [
+                {
+                    "name": "Gabriel Magalhães",
+                    "rating": 88,
+                    "club": "Arsenal"
+                }
+            ],
+            "CB2": [
+                {
+                    "name": "Alessandro Bastoni",
+                    "rating": 87,
+                    "club": "Inter Milan"
+                }
+            ],
+            "RB": [
+                {
+                    "name": "Jeremie Frimpong",
+                    "rating": 85,
+                    "club": "Bayer Leverkusen"
+                }
+            ],
+            "CM1": [
+                {
+                    "name": "Pedri",
+                    "rating": 89,
+                    "club": "Barcelona"
+                }
+            ],
+            "CM2": [
+                {
+                    "name": "Florian Wirtz",
+                    "rating": 88,
+                    "club": "Bayer Leverkusen"
+                }
+            ],
+            "CM3": [
+                {
+                    "name": "Declan Rice",
+                    "rating": 87,
+                    "club": "Arsenal"
+                }
+            ],
+            "LW": [
+                {
+                    "name": "Phil Foden",
+                    "rating": 88,
+                    "club": "Manchester City"
+                }
+            ],
+            "ST": [
+                {
+                    "name": "Lautaro Martínez",
+                    "rating": 88,
+                    "club": "Inter Milan"
+                }
+            ],
+            "RW": [
+                {
+                    "name": "Bukayo Saka",
+                    "rating": 89,
+                    "club": "Arsenal"
+                }
+            ],
+            "SUB1": [
+                {
+                    "name": "Ferland Mendy",
+                    "rating": 84,
+                    "club": "Real Madrid"
+                }
+            ],
+            "SUB2": [
+                {
+                    "name": "Mats Hummels",
+                    "rating": 85,
+                    "club": "Roma"
+                }
+            ],
+            "SUB3": [
+                {
+                    "name": "Benjamin Pavard",
+                    "rating": 83,
+                    "club": "Inter Milan"
+                }
+            ],
+            "SUB4": [
+                {
+                    "name": "N'Golo Kanté",
+                    "rating": 84,
+                    "club": "Al-Ittihad"
+                }
+            ],
+            "SUB5": [
+                {
+                    "name": "Lionel Messi",
+                    "rating": 86,
+                    "club": "Inter Miami"
+                }
+            ]
+        },
+        "Rio": {
+            "GK": [
+                {
+                    "name": "Alisson Becker",
+                    "rating": 89,
+                    "club": "Liverpool"
+                }
+            ],
+            "LB": [
+                {
+                    "name": "Alphonso Davies",
+                    "rating": 86,
+                    "club": "Bayern Munich"
+                }
+            ],
+            "CB1": [
+                {
+                    "name": "Virgil van Dijk",
+                    "rating": 90,
+                    "club": "Liverpool"
+                }
+            ],
+            "CB2": [
+                {
+                    "name": "Dayot Upamecano",
+                    "rating": 85,
+                    "club": "Bayern Munich"
+                }
+            ],
+            "RB": [
+                {
+                    "name": "Achraf Hakimi",
+                    "rating": 89,
+                    "club": "PSG"
+                }
+            ],
+            "CM1": [
+                {
+                    "name": "Rodri",
+                    "rating": 90,
+                    "club": "Manchester City"
+                }
+            ],
+            "CM2": [
+                {
+                    "name": "Bruno Fernandes",
+                    "rating": 88,
+                    "club": "Manchester United"
+                }
+            ],
+            "CM3": [
+                {
+                    "name": "Vitinha",
+                    "rating": 87,
+                    "club": "PSG"
+                }
+            ],
+            "LW": [
+                {
+                    "name": "Leroy Sané",
+                    "rating": 86,
+                    "club": "Bayern Munich"
+                }
+            ],
+            "ST": [
+                {
+                    "name": "Kylian Mbappé",
+                    "rating": 91,
+                    "club": "Real Madrid"
+                }
+            ],
+            "RW": [
+                {
+                    "name": "Mohamed Salah",
+                    "rating": 91,
+                    "club": "Liverpool"
+                }
+            ],
+            "SUB1": [
+                {
+                    "name": "Andrew Robertson",
+                    "rating": 84,
+                    "club": "Liverpool"
+                }
+            ],
+            "SUB2": [
+                {
+                    "name": "Nathan Aké",
+                    "rating": 83,
+                    "club": "Manchester City"
+                }
+            ],
+            "SUB3": [
+                {
+                    "name": "Denzel Dumfries",
+                    "rating": 83,
+                    "club": "Inter Milan"
+                }
+            ],
+            "SUB4": [
+                {
+                    "name": "Nicolò Barella",
+                    "rating": 87,
+                    "club": "Inter Milan"
+                }
+            ],
+            "SUB5": [
+                {
+                    "name": "Julián Álvarez",
+                    "rating": 87,
+                    "club": "Atletico Madrid"
+                }
+            ]
+        }
+    }
+}

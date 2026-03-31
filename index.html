@@ -385,6 +385,47 @@
         </div>
     </div>
 
+    <!-- Edit Player Modal -->
+    <div id="editPlayerModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm modal-overlay">
+        <div class="bg-surface-raised rounded-2xl w-full max-w-sm overflow-hidden flex flex-col mx-4 border border-gray-700 modal-content">
+            <div class="flex justify-between items-center p-5 border-b border-gray-800">
+                <h2 class="font-display text-base tracking-wider text-neon">EDIT PLAYER</h2>
+                <button onclick="closeEditPlayer()"
+                    class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold tracking-wider text-gray-500 mb-1.5 uppercase">Position</label>
+                    <div id="editPlayerPos" class="text-sm text-neon font-semibold"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold tracking-wider text-gray-500 mb-1.5 uppercase">Player Name</label>
+                    <input type="text" id="editPlayerName"
+                        class="w-full bg-surface border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-200 focus:border-neon focus:outline-none">
+                </div>
+                <div class="flex gap-3">
+                    <div class="w-24">
+                        <label class="block text-xs font-bold tracking-wider text-gray-500 mb-1.5 uppercase">Rating</label>
+                        <input type="number" id="editPlayerRating" min="1" max="99"
+                            class="w-full bg-surface border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-200 focus:border-neon focus:outline-none">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold tracking-wider text-gray-500 mb-1.5 uppercase">Club</label>
+                        <input type="text" id="editPlayerClub"
+                            class="w-full bg-surface border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-200 focus:border-neon focus:outline-none">
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-800 flex justify-between">
+                <button onclick="removeEditPlayer()"
+                    class="px-4 py-2 rounded-lg bg-surface border border-gray-700 text-sm text-danger hover:border-danger transition-all">🗑️ Remove</button>
+                <button onclick="saveEditPlayer()"
+                    class="px-6 py-2 rounded-lg bg-neon text-surface-deep font-bold text-sm hover:bg-neon-dim transition-all">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         /* ====== DATA ====== */
         const managers = ["BDN", "Carl", "Killer", "Rio"];
@@ -722,14 +763,14 @@
                     const pl = (team[pos] || [])[0];
                     return `<div class="flex justify-between items-center py-1.5 px-3 rounded-lg ${pl ? 'bg-surface' : ''}">
                     <span class="text-[10px] font-bold tracking-wider ${pl ? 'text-neon' : 'text-gray-700'}">${POS_LABELS[pos]}</span>
-                    ${pl ? `<span class="text-xs text-gray-200">${pl.name} <span class="text-gray-500">(${pl.rating})</span></span>` : '<span class="text-xs text-gray-700">—</span>'}
+                    ${pl ? `<div class="flex items-center gap-1.5"><span class="text-xs text-gray-200">${pl.name} <span class="text-gray-500">(${pl.rating})</span></span><button onclick="openEditPlayer('${m}','${pos}')" class="text-gray-600 hover:text-neon text-[11px] transition-colors" title="Edit player">✏️</button></div>` : '<span class="text-xs text-gray-700">—</span>'}
                 </div>`;
                 }).join('');
                 const subRows = SUB_POSITIONS.map(pos => {
                     const pl = (team[pos] || [])[0];
                     return `<div class="flex justify-between items-center py-1.5 px-3 rounded-lg ${pl ? 'bg-surface' : ''}">
                     <span class="text-[10px] font-bold tracking-wider ${pl ? 'text-amber-400' : 'text-gray-700'}">${POS_LABELS[pos]}</span>
-                    ${pl ? `<span class="text-xs text-gray-200">${pl.name} <span class="text-gray-500">(${pl.rating})</span></span>` : '<span class="text-xs text-gray-700">—</span>'}
+                    ${pl ? `<div class="flex items-center gap-1.5"><span class="text-xs text-gray-200">${pl.name} <span class="text-gray-500">(${pl.rating})</span></span><button onclick="openEditPlayer('${m}','${pos}')" class="text-gray-600 hover:text-amber-400 text-[11px] transition-colors" title="Edit player">✏️</button></div>` : '<span class="text-xs text-gray-700">—</span>'}
                 </div>`;
                 }).join('');
                 const count = getManagerSquadCount(m);
@@ -744,6 +785,55 @@
                 <div class="p-2 pt-0 space-y-0.5">${subRows}</div>
             </div>`;
             }).join('');
+        }
+
+        /* ====== EDIT PLAYER IN SQUAD ====== */
+        let editCtx = null; // { manager, position }
+
+        function openEditPlayer(manager, position) {
+            const team = state.teams[manager];
+            const pl = (team[position] || [])[0];
+            if (!pl) return;
+
+            editCtx = { manager, position };
+            document.getElementById('editPlayerPos').textContent = `${manager} — ${POS_LABELS[position]}`;
+            document.getElementById('editPlayerName').value = pl.name;
+            document.getElementById('editPlayerRating').value = pl.rating;
+            document.getElementById('editPlayerClub').value = pl.club;
+
+            const modal = document.getElementById('editPlayerModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('editPlayerName').focus();
+        }
+
+        function closeEditPlayer() {
+            const modal = document.getElementById('editPlayerModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            editCtx = null;
+        }
+
+        function saveEditPlayer() {
+            if (!editCtx) return;
+            const name = document.getElementById('editPlayerName').value.trim();
+            const rating = Math.min(99, Math.max(1, parseInt(document.getElementById('editPlayerRating').value) || 80));
+            const club = document.getElementById('editPlayerClub').value.trim();
+            if (!name) { alert('Player name cannot be empty!'); return; }
+
+            state.teams[editCtx.manager][editCtx.position][0] = { name, rating, club };
+            saveState();
+            closeEditPlayer();
+            renderTeamCards();
+        }
+
+        function removeEditPlayer() {
+            if (!editCtx) return;
+            if (!confirm(`Remove this player from ${editCtx.manager}'s squad?`)) return;
+            state.teams[editCtx.manager][editCtx.position] = [];
+            saveState();
+            closeEditPlayer();
+            renderAll();
         }
 
         /* ====== HISTORY ====== */
