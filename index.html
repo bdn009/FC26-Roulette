@@ -226,7 +226,7 @@
         <!-- Progress -->
         <div class="mb-6">
             <div class="flex justify-between text-sm mb-2"><span class="text-gray-400">Draft Progress</span><span
-                    id="progressText" class="text-neon font-semibold">0 / 16</span></div>
+                    id="progressText" class="text-neon font-semibold">0 / 64</span></div>
             <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
                 <div id="progressBar"
                     class="h-full bg-gradient-to-r from-neon-dim to-neon rounded-full transition-all duration-500"
@@ -269,6 +269,27 @@
             <button
                 class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
                 data-pos="RW" onclick="selectPosition('RW')">⚡ RW</button>
+            <!-- Subs Divider -->
+            <div class="w-full flex items-center gap-2 mt-2 mb-1">
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                <span class="text-[10px] font-bold tracking-[3px] text-gray-500 uppercase">Substitutes</span>
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+            </div>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="SUB1" onclick="selectPosition('SUB1')">🔄 Sub 1</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="SUB2" onclick="selectPosition('SUB2')">🔄 Sub 2</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="SUB3" onclick="selectPosition('SUB3')">🔄 Sub 3</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="SUB4" onclick="selectPosition('SUB4')">🔄 Sub 4</button>
+            <button
+                class="pos-tab px-4 py-2.5 rounded-lg font-semibold text-sm bg-surface-raised border border-gray-700"
+                data-pos="SUB5" onclick="selectPosition('SUB5')">🔄 Sub 5</button>
         </div>
 
         <!-- Status -->
@@ -423,15 +444,47 @@
                 { name: "Bukayo Saka", rating: 89, club: "Arsenal" },
                 { name: "Lamine Yamal", rating: 88, club: "Barcelona" },
                 { name: "Ousmane Dembélé", rating: 88, club: "PSG" }
+            ],
+            SUB1: [
+                { name: "Andrew Robertson", rating: 84, club: "Liverpool" },
+                { name: "Ferland Mendy", rating: 84, club: "Real Madrid" },
+                { name: "Nuno Mendes", rating: 83, club: "PSG" },
+                { name: "Marc Cucurella", rating: 82, club: "Chelsea" }
+            ],
+            SUB2: [
+                { name: "Mats Hummels", rating: 85, club: "Roma" },
+                { name: "Stefan de Vrij", rating: 84, club: "Inter Milan" },
+                { name: "Pau Torres", rating: 84, club: "Aston Villa" },
+                { name: "Nathan Aké", rating: 83, club: "Manchester City" }
+            ],
+            SUB3: [
+                { name: "Kyle Walker", rating: 84, club: "AC Milan" },
+                { name: "Pedro Porro", rating: 84, club: "Tottenham" },
+                { name: "Benjamin Pavard", rating: 83, club: "Inter Milan" },
+                { name: "Denzel Dumfries", rating: 83, club: "Inter Milan" }
+            ],
+            SUB4: [
+                { name: "Nicolò Barella", rating: 87, club: "Inter Milan" },
+                { name: "Aurélien Tchouaméni", rating: 86, club: "Real Madrid" },
+                { name: "N'Golo Kanté", rating: 84, club: "Al-Ittihad" },
+                { name: "Joshua Kimmich", rating: 86, club: "Barcelona" }
+            ],
+            SUB5: [
+                { name: "Julián Álvarez", rating: 87, club: "Atletico Madrid" },
+                { name: "Cristiano Ronaldo", rating: 84, club: "Al-Nassr" },
+                { name: "Antoine Griezmann", rating: 86, club: "Atletico Madrid" },
+                { name: "Lionel Messi", rating: 86, club: "Inter Miami" }
             ]
         };
 
         /* ====== STATE ====== */
-        const POSITIONS = ["GK", "LB", "CB1", "CB2", "RB", "CM1", "CM2", "CM3", "LW", "ST", "RW"];
-        const FORMATION = { GK: 1, LB: 1, CB1: 1, CB2: 1, RB: 1, CM1: 1, CM2: 1, CM3: 1, LW: 1, ST: 1, RW: 1 }; // 4-3-3
-        const POS_LABELS = { GK: "GK", LB: "LB", CB1: "CB 1", CB2: "CB 2", RB: "RB", CM1: "CM 1", CM2: "CM 2", CM3: "CM 3", LW: "LW", ST: "ST", RW: "RW" };
-        const TOTAL_PER_MANAGER = 11;
-        const TOTAL_PICKS = managers.length * TOTAL_PER_MANAGER; // 44
+        const POSITIONS = ["GK", "LB", "CB1", "CB2", "RB", "CM1", "CM2", "CM3", "LW", "ST", "RW", "SUB1", "SUB2", "SUB3", "SUB4", "SUB5"];
+        const STARTING_POSITIONS = ["GK", "LB", "CB1", "CB2", "RB", "CM1", "CM2", "CM3", "LW", "ST", "RW"];
+        const SUB_POSITIONS = ["SUB1", "SUB2", "SUB3", "SUB4", "SUB5"];
+        const FORMATION = { GK: 1, LB: 1, CB1: 1, CB2: 1, RB: 1, CM1: 1, CM2: 1, CM3: 1, LW: 1, ST: 1, RW: 1, SUB1: 1, SUB2: 1, SUB3: 1, SUB4: 1, SUB5: 1 };
+        const POS_LABELS = { GK: "GK", LB: "LB", CB1: "CB 1", CB2: "CB 2", RB: "RB", CM1: "CM 1", CM2: "CM 2", CM3: "CM 3", LW: "LW", ST: "ST", RW: "RW", SUB1: "Sub LB", SUB2: "Sub CB", SUB3: "Sub RB", SUB4: "Sub CM", SUB5: "Sub ATT" };
+        const TOTAL_PER_MANAGER = 16;
+        const TOTAL_PICKS = managers.length * TOTAL_PER_MANAGER; // 64
         const ITEM_H = 80;
         let state = null;
         let isSpinning = false;
@@ -654,10 +707,17 @@
             const c = document.getElementById('teamCards');
             c.innerHTML = managers.map(m => {
                 const team = state.teams[m];
-                const rows = POSITIONS.map(pos => {
+                const startingRows = STARTING_POSITIONS.map(pos => {
                     const pl = (team[pos] || [])[0];
                     return `<div class="flex justify-between items-center py-1.5 px-3 rounded-lg ${pl ? 'bg-surface' : ''}">
                     <span class="text-[10px] font-bold tracking-wider ${pl ? 'text-neon' : 'text-gray-700'}">${POS_LABELS[pos]}</span>
+                    ${pl ? `<span class="text-xs text-gray-200">${pl.name} <span class="text-gray-500">(${pl.rating})</span></span>` : '<span class="text-xs text-gray-700">—</span>'}
+                </div>`;
+                }).join('');
+                const subRows = SUB_POSITIONS.map(pos => {
+                    const pl = (team[pos] || [])[0];
+                    return `<div class="flex justify-between items-center py-1.5 px-3 rounded-lg ${pl ? 'bg-surface' : ''}">
+                    <span class="text-[10px] font-bold tracking-wider ${pl ? 'text-amber-400' : 'text-gray-700'}">${POS_LABELS[pos]}</span>
                     ${pl ? `<span class="text-xs text-gray-200">${pl.name} <span class="text-gray-500">(${pl.rating})</span></span>` : '<span class="text-xs text-gray-700">—</span>'}
                 </div>`;
                 }).join('');
@@ -667,7 +727,10 @@
                     <span class="font-display font-bold tracking-wider text-gray-200">${m}</span>
                     <span class="text-xs px-2 py-0.5 rounded-full ${count === TOTAL_PER_MANAGER ? 'bg-neon/20 text-neon' : 'bg-gray-800 text-gray-500'}">${count}/${TOTAL_PER_MANAGER}</span>
                 </div>
-                <div class="p-2 space-y-0.5">${rows}</div>
+                <div class="p-2 space-y-0.5">${startingRows}</div>
+                <div class="mx-2 my-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                <div class="px-2 pt-0.5 pb-1"><span class="text-[9px] font-bold tracking-[2px] text-gray-600 uppercase">Subs</span></div>
+                <div class="p-2 pt-0 space-y-0.5">${subRows}</div>
             </div>`;
             }).join('');
         }
@@ -689,12 +752,19 @@
         /* ====== COPY RESULTS ====== */
         function copyResults() {
             if (state.history.length === 0) { alert('No draft results to copy yet!'); return; }
-            let txt = '🎰 FC26 ROULETTE DRAFT RESULTS (4-3-3) 🎰\n══════════════════════════════════════\n\n';
+            let txt = '🎰 FC26 ROULETTE DRAFT RESULTS (4-3-3 + 5 Subs) 🎰\n══════════════════════════════════════\n\n';
             managers.forEach(m => {
                 const team = state.teams[m];
                 const count = getManagerSquadCount(m);
                 txt += `🎮 ${m} (${count}/${TOTAL_PER_MANAGER})\n`;
-                POSITIONS.forEach(pos => {
+                txt += '  ── Starting XI ──\n';
+                STARTING_POSITIONS.forEach(pos => {
+                    const label = POS_LABELS[pos];
+                    const pl = (team[pos] || [])[0];
+                    txt += pl ? `  ${label}: ${pl.name} (${pl.rating}) - ${pl.club}\n` : `  ${label}: —\n`;
+                });
+                txt += '  ── Substitutes ──\n';
+                SUB_POSITIONS.forEach(pos => {
                     const label = POS_LABELS[pos];
                     const pl = (team[pos] || [])[0];
                     txt += pl ? `  ${label}: ${pl.name} (${pl.rating}) - ${pl.club}\n` : `  ${label}: —\n`;
