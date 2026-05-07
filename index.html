@@ -237,7 +237,7 @@
         <!-- Progress -->
         <div class="mb-6">
             <div class="flex justify-between text-sm mb-2"><span class="text-gray-400">Draft Progress</span><span
-                    id="progressText" class="text-neon font-semibold">0 / 64</span></div>
+                    id="progressText" class="text-neon font-semibold">0 / 80</span></div>
             <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
                 <div id="progressBar"
                     class="h-full bg-gradient-to-r from-neon-dim to-neon rounded-full transition-all duration-500"
@@ -342,7 +342,7 @@
 
         <!-- Team Cards -->
         <h2 class="font-display text-lg tracking-wider text-gray-300 mb-4">MANAGER SQUADS</h2>
-        <div id="teamCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10"></div>
+        <div id="teamCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-10"></div>
 
         <!-- Draft History -->
         <div class="mb-8">
@@ -428,104 +428,120 @@
 
     <script>
         /* ====== DATA ====== */
-        const managers = ["BDN", "Carl", "Killer", "Rio"];
+        const managers = ["BDN", "Carl", "Killer", "Rio", "xxx"];
 
         let fc26Roster = {
             GK: [
                 { name: "Gianluigi Donnarumma", rating: 89, club: "Manchester City" },
                 { name: "Alisson Becker", rating: 89, club: "Liverpool" },
                 { name: "Thibaut Courtois", rating: 89, club: "Real Madrid" },
-                { name: "Jan Oblak", rating: 88, club: "Atletico Madrid" }
+                { name: "Jan Oblak", rating: 88, club: "Atletico Madrid" },
+                { name: "Mike Maignan", rating: 88, club: "AC Milan" }
             ],
             LB: [
                 { name: "Theo Hernández", rating: 86, club: "AC Milan" },
                 { name: "Alphonso Davies", rating: 86, club: "Bayern Munich" },
                 { name: "Joško Gvardiol", rating: 86, club: "Manchester City" },
-                { name: "Alejandro Grimaldo", rating: 85, club: "Bayer Leverkusen" }
+                { name: "Alejandro Grimaldo", rating: 85, club: "Bayer Leverkusen" },
+                { name: "Andy Robertson", rating: 84, club: "Liverpool" }
             ],
             CB1: [
                 { name: "Virgil van Dijk", rating: 90, club: "Liverpool" },
                 { name: "Gabriel Magalhães", rating: 88, club: "Arsenal" },
                 { name: "Rúben Dias", rating: 88, club: "Manchester City" },
-                { name: "William Saliba", rating: 88, club: "Arsenal" }
+                { name: "William Saliba", rating: 88, club: "Arsenal" },
+                { name: "Eder Militão", rating: 87, club: "Real Madrid" }
             ],
             CB2: [
                 { name: "Alessandro Bastoni", rating: 87, club: "Inter Milan" },
                 { name: "Antonio Rüdiger", rating: 87, club: "Real Madrid" },
                 { name: "Marquinhos", rating: 87, club: "PSG" },
-                { name: "Dayot Upamecano", rating: 85, club: "Bayern Munich" }
+                { name: "Dayot Upamecano", rating: 85, club: "Bayern Munich" },
+                { name: "Lisandro Martínez", rating: 85, club: "Manchester United" }
             ],
             RB: [
                 { name: "Achraf Hakimi", rating: 89, club: "PSG" },
                 { name: "Trent Alexander-Arnold", rating: 87, club: "Real Madrid" },
                 { name: "Jules Koundé", rating: 86, club: "Barcelona" },
-                { name: "Jeremie Frimpong", rating: 85, club: "Bayer Leverkusen" }
+                { name: "Jeremie Frimpong", rating: 85, club: "Bayer Leverkusen" },
+                { name: "Reece James", rating: 84, club: "Chelsea" }
             ],
             CM1: [
                 { name: "Rodri", rating: 90, club: "Manchester City" },
                 { name: "Jude Bellingham", rating: 90, club: "Real Madrid" },
                 { name: "Pedri", rating: 89, club: "Barcelona" },
-                { name: "Federico Valverde", rating: 89, club: "Real Madrid" }
+                { name: "Federico Valverde", rating: 89, club: "Real Madrid" },
+                { name: "Granit Xhaka", rating: 86, club: "Bayer Leverkusen" }
             ],
             CM2: [
                 { name: "Martin Ødegaard", rating: 89, club: "Arsenal" },
                 { name: "Bruno Fernandes", rating: 88, club: "Manchester United" },
                 { name: "Florian Wirtz", rating: 88, club: "Bayer Leverkusen" },
-                { name: "Jamal Musiala", rating: 88, club: "Bayern Munich" }
+                { name: "Jamal Musiala", rating: 88, club: "Bayern Munich" },
+                { name: "Bernardo Silva", rating: 87, club: "Manchester City" }
             ],
             CM3: [
                 { name: "Declan Rice", rating: 87, club: "Arsenal" },
                 { name: "Vitinha", rating: 87, club: "PSG" },
                 { name: "Luka Modrić", rating: 87, club: "Real Madrid" },
-                { name: "Kevin De Bruyne", rating: 86, club: "Napoli" }
+                { name: "Kevin De Bruyne", rating: 86, club: "Napoli" },
+                { name: "Toni Kroos", rating: 86, club: "Real Madrid" }
             ],
             LW: [
                 { name: "Vinícius Jr.", rating: 90, club: "Real Madrid" },
                 { name: "Raphinha", rating: 88, club: "Barcelona" },
                 { name: "Phil Foden", rating: 88, club: "Manchester City" },
-                { name: "Leroy Sané", rating: 86, club: "Bayern Munich" }
+                { name: "Leroy Sané", rating: 86, club: "Bayern Munich" },
+                { name: "Son Heung-min", rating: 86, club: "Tottenham" }
             ],
             ST: [
                 { name: "Kylian Mbappé", rating: 91, club: "Real Madrid" },
                 { name: "Erling Haaland", rating: 90, club: "Manchester City" },
                 { name: "Harry Kane", rating: 89, club: "Bayern Munich" },
-                { name: "Lautaro Martínez", rating: 88, club: "Inter Milan" }
+                { name: "Lautaro Martínez", rating: 88, club: "Inter Milan" },
+                { name: "Viktor Gyökeres", rating: 87, club: "Sporting CP" }
             ],
             RW: [
                 { name: "Mohamed Salah", rating: 91, club: "Liverpool" },
                 { name: "Bukayo Saka", rating: 89, club: "Arsenal" },
                 { name: "Lamine Yamal", rating: 88, club: "Barcelona" },
-                { name: "Ousmane Dembélé", rating: 88, club: "PSG" }
+                { name: "Ousmane Dembélé", rating: 88, club: "PSG" },
+                { name: "Nico Williams", rating: 86, club: "Athletic Bilbao" }
             ],
             SUB1: [
                 { name: "Andrew Robertson", rating: 84, club: "Liverpool" },
                 { name: "Ferland Mendy", rating: 84, club: "Real Madrid" },
                 { name: "Nuno Mendes", rating: 83, club: "PSG" },
-                { name: "Marc Cucurella", rating: 82, club: "Chelsea" }
+                { name: "Marc Cucurella", rating: 82, club: "Chelsea" },
+                { name: "Marcos Acuña", rating: 82, club: "River Plate" }
             ],
             SUB2: [
                 { name: "Mats Hummels", rating: 85, club: "Roma" },
                 { name: "Stefan de Vrij", rating: 84, club: "Inter Milan" },
                 { name: "Pau Torres", rating: 84, club: "Aston Villa" },
-                { name: "Nathan Aké", rating: 83, club: "Manchester City" }
+                { name: "Nathan Aké", rating: 83, club: "Manchester City" },
+                { name: "Kim Min-jae", rating: 84, club: "Bayern Munich" }
             ],
             SUB3: [
                 { name: "Kyle Walker", rating: 84, club: "AC Milan" },
                 { name: "Pedro Porro", rating: 84, club: "Tottenham" },
                 { name: "Benjamin Pavard", rating: 83, club: "Inter Milan" },
-                { name: "Denzel Dumfries", rating: 83, club: "Inter Milan" }
+                { name: "Denzel Dumfries", rating: 83, club: "Inter Milan" },
+                { name: "Diogo Dalot", rating: 83, club: "Manchester United" }
             ],
             SUB4: [
                 { name: "Nicolò Barella", rating: 87, club: "Inter Milan" },
                 { name: "Aurélien Tchouaméni", rating: 86, club: "Real Madrid" },
                 { name: "N'Golo Kanté", rating: 84, club: "Al-Ittihad" },
-                { name: "Joshua Kimmich", rating: 86, club: "Barcelona" }
+                { name: "Joshua Kimmich", rating: 86, club: "Barcelona" },
+                { name: "Enzo Fernández", rating: 85, club: "Chelsea" }
             ],
             SUB5: [
                 { name: "Julián Álvarez", rating: 87, club: "Atletico Madrid" },
                 { name: "Cristiano Ronaldo", rating: 84, club: "Al-Nassr" },
                 { name: "Antoine Griezmann", rating: 86, club: "Atletico Madrid" },
-                { name: "Lionel Messi", rating: 86, club: "Inter Miami" }
+                { name: "Lionel Messi", rating: 86, club: "Inter Miami" },
+                { name: "Alexander Isak", rating: 86, club: "Newcastle" }
             ]
         };
 
