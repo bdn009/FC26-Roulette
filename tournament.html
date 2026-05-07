@@ -274,10 +274,9 @@
 
                 <!-- Points reminder -->
                 <div class="mt-4 flex flex-wrap gap-4 text-[11px] text-gray-600">
-                    <span>🏆 Win = <span class="text-neon">2 pts</span></span>
+                    <span>🏆 Win = <span class="text-neon">3 pts</span></span>
                     <span>🤝 Draw = <span class="text-accent">1 pt</span></span>
                     <span>❌ Loss = <span class="text-danger">0 pts</span></span>
-                    <span>⚽ Each Goal = <span class="text-gold">+0.5 pts</span></span>
                 </div>
             </div>
         </section>
@@ -331,7 +330,7 @@
                 </table>
             </div>
             <div class="mt-3 flex flex-wrap gap-4 text-[11px] text-gray-600">
-                <span>Points = (Wins × 2) + (Draws × 1) + (Goals Scored × 0.5)</span>
+                <span>Points = (Wins × 3) + (Draws × 1)</span>
             </div>
         </section>
 
@@ -357,58 +356,34 @@
             <h2 class="font-display text-lg tracking-wider text-gray-300 mb-4 flex items-center gap-2">
                 <span class="text-xl">🏆</span> KNOCKOUT BRACKET
             </h2>
-            <p class="text-xs text-gray-600 mb-6">1st gets a bye · 4th vs 5th Play-In · Click any field to edit. Auto-saves.</p>
+            <p class="text-xs text-gray-600 mb-6">Top 4 qualify · 5th eliminated · Click any field to edit. Auto-saves.</p>
 
             <div class="bg-surface-raised rounded-2xl border border-gray-800 p-6 overflow-x-auto">
-                <div class="min-w-[1100px]">
+                <div class="min-w-[900px]">
                     <!-- Round Labels -->
-                    <div class="grid grid-cols-7 gap-3 mb-6 text-center">
-                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Seeds</div>
-                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Play-In</div>
+                    <div class="grid grid-cols-5 gap-4 mb-6 text-center">
+                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Group Phase</div>
                         <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Semi-Finals</div>
                         <div class="text-xs font-display font-bold tracking-[2px] text-neon uppercase">Grand Final</div>
                         <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Semi-Finals</div>
-                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase col-span-1">&nbsp;</div>
-                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Seeds</div>
+                        <div class="text-xs font-display font-bold tracking-[2px] text-gray-500 uppercase">Group Phase</div>
                     </div>
 
                     <!-- Bracket Slots -->
-                    <div class="grid grid-cols-7 gap-3 items-center" style="min-height: 500px;">
-
-                        <!-- Col 1: Left Seeds (1st, 4th, 5th) -->
-                        <div class="flex flex-col gap-4">
+                    <div class="grid grid-cols-5 gap-4 items-center" style="min-height: 400px;">
+                        <!-- Column 1: Left Seeds (1st, 4th) -->
+                        <div class="flex flex-col gap-6">
                             <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
-                                <div class="text-[10px] font-bold tracking-wider text-gold mb-2 uppercase flex items-center gap-1">🥇 1st Place (Bye)</div>
+                                <div class="text-[10px] font-bold tracking-wider text-gold mb-2 uppercase flex items-center gap-1">🥇 1st Place</div>
                                 <input type="text" data-ko="seed1-name" placeholder="1st Place" class="mb-1 font-semibold" oninput="saveBracket()">
                             </div>
                             <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
                                 <div class="text-[10px] font-bold tracking-wider text-gray-500 mb-2 uppercase flex items-center gap-1">4th Place</div>
                                 <input type="text" data-ko="seed4-name" placeholder="4th Place" class="mb-1 font-semibold" oninput="saveBracket()">
                             </div>
-                            <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
-                                <div class="text-[10px] font-bold tracking-wider text-gray-600 mb-2 uppercase flex items-center gap-1">5th Place</div>
-                                <input type="text" data-ko="seed5-name" placeholder="5th Place" class="mb-1 font-semibold" oninput="saveBracket()">
-                            </div>
                         </div>
 
-                        <!-- Col 2: Play-In (4th vs 5th) -->
-                        <div class="flex flex-col justify-center">
-                            <div class="bracket-slot bg-surface rounded-xl border border-amber-700/40 p-3">
-                                <div class="text-[10px] font-bold tracking-wider text-amber-400 mb-2 uppercase">⚔️ Play-In</div>
-                                <div class="space-y-2">
-                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
-                                        <input type="text" data-ko="playin-team1" placeholder="4th Place" class="flex-1 font-semibold" oninput="saveBracket()">
-                                        <input type="text" data-ko="playin-score1" placeholder="-" class="score-input" oninput="saveBracket()">
-                                    </div>
-                                    <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
-                                        <input type="text" data-ko="playin-team2" placeholder="5th Place" class="flex-1 font-semibold" oninput="saveBracket()">
-                                        <input type="text" data-ko="playin-score2" placeholder="-" class="score-input" oninput="saveBracket()">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Col 3: Semi-Final 1 (1st vs Play-In Winner) -->
+                        <!-- Column 2: Semi-Final 1 (1st vs 4th) -->
                         <div class="flex flex-col justify-center">
                             <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
                                 <div class="text-[10px] font-bold tracking-wider text-accent mb-2 uppercase">Semi-Final 1</div>
@@ -418,15 +393,15 @@
                                         <input type="text" data-ko="sf1-score1" placeholder="-" class="score-input" oninput="saveBracket()">
                                     </div>
                                     <div class="flex items-center gap-2 bg-surface-raised rounded-lg px-3 py-2">
-                                        <input type="text" data-ko="sf1-team2" placeholder="Play-In W" class="flex-1 font-semibold" oninput="saveBracket()">
+                                        <input type="text" data-ko="sf1-team2" placeholder="4th Place" class="flex-1 font-semibold" oninput="saveBracket()">
                                         <input type="text" data-ko="sf1-score2" placeholder="-" class="score-input" oninput="saveBracket()">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Col 4: Grand Final + 3rd Place -->
-                        <div class="flex flex-col gap-5 justify-center">
+                        <!-- Column 3: Final + 3rd Place -->
+                        <div class="flex flex-col gap-6 justify-center">
                             <div class="bracket-slot bg-surface rounded-xl border-2 border-neon/30 p-4 shadow-lg shadow-neon/5">
                                 <div class="text-[10px] font-display font-bold tracking-[3px] text-neon mb-3 uppercase text-center">🏆 Grand Final</div>
                                 <div class="space-y-2">
@@ -459,7 +434,7 @@
                             </div>
                         </div>
 
-                        <!-- Col 5: Semi-Final 2 (2nd vs 3rd) -->
+                        <!-- Column 4: Semi-Final 2 (2nd vs 3rd) -->
                         <div class="flex flex-col justify-center">
                             <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
                                 <div class="text-[10px] font-bold tracking-wider text-accent mb-2 uppercase">Semi-Final 2</div>
@@ -476,11 +451,8 @@
                             </div>
                         </div>
 
-                        <!-- Col 6: Spacer -->
-                        <div></div>
-
-                        <!-- Col 7: Right Seeds (2nd, 3rd) -->
-                        <div class="flex flex-col gap-4">
+                        <!-- Column 5: Right Seeds (2nd, 3rd) -->
+                        <div class="flex flex-col gap-6">
                             <div class="bracket-slot bg-surface rounded-xl border border-gray-700 p-3">
                                 <div class="text-[10px] font-bold tracking-wider text-silver mb-2 uppercase flex items-center gap-1">🥈 2nd Place</div>
                                 <input type="text" data-ko="seed2-name" placeholder="2nd Place" class="mb-1 font-semibold" oninput="saveBracket()">
@@ -492,8 +464,16 @@
                         </div>
                     </div>
 
+                    <!-- 5th Place Eliminated -->
+                    <div class="mt-5 pt-4 border-t border-gray-800 flex items-center justify-center gap-3">
+                        <div class="bracket-slot bg-surface rounded-xl border border-danger/20 p-3 flex items-center gap-3 w-auto">
+                            <div class="text-[10px] font-bold tracking-wider text-danger uppercase">❌ 5th — Eliminated</div>
+                            <input type="text" data-ko="seed5-name" placeholder="5th Place" class="font-semibold !text-gray-500 w-32" oninput="saveBracket()">
+                        </div>
+                    </div>
+
                     <!-- Auto-fill from standings -->
-                    <div class="mt-6 pt-4 border-t border-gray-800 text-center">
+                    <div class="mt-4 pt-4 border-t border-gray-800 text-center">
                         <button onclick="autoFillBracket()"
                             class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-surface border border-gray-700 text-gray-400 hover:border-neon hover:text-neon transition-all">
                             ⚡ Auto-Fill Seeds from Standings
@@ -590,11 +570,11 @@
                 }
             });
 
-            // Calculate points: Win=2, Draw=1, Loss=0, +0.5 per goal
+            // Calculate points: Win=3, Draw=1, Loss=0
             MANAGERS.forEach(m => {
                 const s = stats[m];
                 s.gd = s.gf - s.ga;
-                s.pts = (s.w * 2) + (s.d * 1) + (s.gf * 0.5);
+                s.pts = (s.w * 3) + (s.d * 1);
             });
 
             // Sort by points desc, then GD, then GF
@@ -771,12 +751,9 @@
             setKO('seed4-name', s4);
             setKO('seed5-name', s5);
 
-            // Play-In: 4th vs 5th
-            setKO('playin-team1', s4);
-            setKO('playin-team2', s5);
-
-            // SF matchups: 1st vs Play-In Winner, 2nd vs 3rd
+            // SF matchups: 1st vs 4th, 2nd vs 3rd
             setKO('sf1-team1', s1);
+            setKO('sf1-team2', s4);
             setKO('sf2-team1', s2);
             setKO('sf2-team2', s3);
 
