@@ -31,6 +31,7 @@ const fixtureSchema = new mongoose.Schema({
   home: { type: String, required: true },
   away: { type: String, required: true },
   leg: { type: Number, required: true },
+  stage: { type: String, default: "group_stage" },
   homeGoals: { type: Number, default: null },
   awayGoals: { type: Number, default: null },
   played: { type: Boolean, default: false },
