@@ -498,41 +498,80 @@
     <div id="toastContainer"></div>
 
     <script>
-        /* ====== DATA ====== */
-        const MANAGERS = ["BDN", "Carl", "Killer", "Rio", "xxx"];
-        const MATCHES_PER_PAIRING = 4;
-        const PAIRINGS = [];
+        /* ====== API CALLS ====== */
+        const API_URL = '/api';
 
-        // Generate all unique pairings
-        for (let i = 0; i < MANAGERS.length; i++) {
-            for (let j = i + 1; j < MANAGERS.length; j++) {
-                PAIRINGS.push([MANAGERS[i], MANAGERS[j]]);
-            }
-        }
-
-        const TOTAL_MATCHES = PAIRINGS.length * MATCHES_PER_PAIRING; // 10 × 4 = 40
-
-        /* ====== STATE ====== */
+        /* ====== DATA & STATE ====== */
+        let MANAGERS = [];
+        let MATCHES_PER_PAIRING = 4;
+        let PAIRINGS = [];
         let matches = [];
         let bracket = {};
 
-        function loadData() {
+        async function loadData() {
             try {
-                matches = JSON.parse(localStorage.getItem('fc26tournament_matches')) || [];
-            } catch { matches = []; }
-            try {
-                bracket = JSON.parse(localStorage.getItem('fc26tournament_bracket')) || {};
-            } catch { bracket = {}; }
+                // Fetch participants
+                const resP = await fetch(`${API_URL}/participants`);
+                const participants = await resP.json();
+                MANAGERS = participants.map(p => p.discordUsername);
+                
+                // Generate pairings
+                PAIRINGS = [];
+                for (let i = 0; i < MANAGERS.length; i++) {
+                    for (let j = i + 1; j < MANAGERS.length; j++) {
+                        PAIRINGS.push([MANAGERS[i], MANAGERS[j]]);
+                    }
+                }
+                
+                // Populate manager dropdowns
+                updateManagerDropdowns();
+
+                // Fetch matches (fixtures)
+                const resF = await fetch(`${API_URL}/fixtures`);
+                const fixtures = await resF.json();
+                // Filter only played matches for history/standings, or keep all for tracker
+                matches = fixtures;
+
+                // Fetch bracket
+                const resB = await fetch(`${API_URL}/bracket`);
+                bracket = await resB.json();
+            } catch (err) {
+                console.error("Error loading data from API:", err);
+            }
         }
 
-        function saveMatches() {
-            localStorage.setItem('fc26tournament_matches', JSON.stringify(matches));
+        function updateManagerDropdowns() {
+            const homeSel = document.getElementById('homeManager');
+            const awaySel = document.getElementById('awayManager');
+            const homeVal = homeSel.value;
+            const awayVal = awaySel.value;
+            
+            const opts = '<option value="">Select Manager</option>' + 
+                         MANAGERS.map(m => `<option value="${m}">${m}</option>`).join('');
+            
+            homeSel.innerHTML = opts;
+            awaySel.innerHTML = opts;
+            
+            if (MANAGERS.includes(homeVal)) homeSel.value = homeVal;
+            if (MANAGERS.includes(awayVal)) awaySel.value = awayVal;
         }
 
-        function saveBracket() {
+        async function saveBracket() {
             const inputs = document.querySelectorAll('[data-ko]');
-            inputs.forEach(inp => { bracket[inp.dataset.ko] = inp.value; });
-            localStorage.setItem('fc26tournament_bracket', JSON.stringify(bracket));
+            const data = {};
+            inputs.forEach(inp => { 
+                bracket[inp.dataset.ko] = inp.value; 
+                data[inp.dataset.ko] = inp.value;
+            });
+            try {
+                await fetch(`${API_URL}/bracket`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            } catch (err) {
+                console.error("Failed to save bracket:", err);
+            }
         }
 
         function loadBracketInputs() {
@@ -549,7 +588,7 @@
                 stats[m] = { name: m, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
             });
 
-            matches.forEach(match => {
+            matches.filter(m => m.played).forEach(match => {
                 const home = stats[match.home];
                 const away = stats[match.away];
                 if (!home || !away) return;
@@ -570,29 +609,25 @@
                 }
             });
 
-            // Calculate points: Win=3, Draw=1, Loss=0
             MANAGERS.forEach(m => {
                 const s = stats[m];
                 s.gd = s.gf - s.ga;
                 s.pts = (s.w * 3) + (s.d * 1);
             });
 
-            // Sort by points desc, then GD, then GF
-            const sorted = Object.values(stats).sort((a, b) => {
+            return Object.values(stats).sort((a, b) => {
                 if (b.pts !== a.pts) return b.pts - a.pts;
                 if (b.gd !== a.gd) return b.gd - a.gd;
                 return b.gf - a.gf;
             });
-
-            return sorted;
         }
 
         /* ====== FIXTURE TRACKER ====== */
         function getPairingMatchCount(m1, m2) {
-            return matches.filter(match =>
+            return matches.filter(match => match.played && (
                 (match.home === m1 && match.away === m2) ||
                 (match.home === m2 && match.away === m1)
-            ).length;
+            )).length;
         }
 
         function renderFixtureTracker() {
@@ -650,15 +685,17 @@
             const container = document.getElementById('matchHistory');
             const empty = document.getElementById('matchHistoryEmpty');
 
-            if (matches.length === 0) {
+            const playedMatches = matches.filter(m => m.played).sort((a, b) => new Date(a.playedAt) - new Date(b.playedAt));
+
+            if (playedMatches.length === 0) {
                 container.innerHTML = '';
                 empty.classList.remove('hidden');
                 return;
             }
 
             empty.classList.add('hidden');
-            container.innerHTML = [...matches].reverse().map((m, idx) => {
-                const i = matches.length - 1 - idx;
+            container.innerHTML = [...playedMatches].reverse().map((m, idx) => {
+                const i = playedMatches.length - 1 - idx;
                 const homeWin = m.homeGoals > m.awayGoals;
                 const awayWin = m.awayGoals > m.homeGoals;
                 const draw = m.homeGoals === m.awayGoals;
@@ -674,13 +711,13 @@
                         </div>
                         <span class="font-semibold ${awayWin ? 'text-neon' : draw ? 'text-accent' : 'text-gray-400'}">${m.away}</span>
                     </div>
-                    <button onclick="deleteMatch(${i})" class="text-gray-700 hover:text-danger transition-colors text-lg px-1" title="Delete match">✕</button>
+                    <button onclick="deleteMatch('${m._id}')" class="text-gray-700 hover:text-danger transition-colors text-lg px-1" title="Delete match">✕</button>
                 </div>`;
             }).join('');
         }
 
         /* ====== SUBMIT MATCH ====== */
-        function submitMatch() {
+        async function submitMatch() {
             const home = document.getElementById('homeManager').value;
             const away = document.getElementById('awayManager').value;
             const homeGoals = parseInt(document.getElementById('homeGoals').value) || 0;
@@ -696,41 +733,50 @@
                 return;
             }
 
-            // Check if this pairing has already been played 4 times
-            const count = getPairingMatchCount(home, away);
-            if (count >= MATCHES_PER_PAIRING) {
-                showToast(`${home} vs ${away} has already been played ${MATCHES_PER_PAIRING} times!`, 'danger');
-                return;
+            try {
+                const res = await fetch(`${API_URL}/matches`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ home, away, homeGoals, awayGoals })
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    showToast(errorData.error || 'Failed to submit match', 'danger');
+                    return;
+                }
+
+                await loadData();
+                renderAll();
+
+                // Reset inputs
+                document.getElementById('homeGoals').value = 0;
+                document.getElementById('awayGoals').value = 0;
+
+                const label = homeGoals > awayGoals ? `${home} wins!` : awayGoals > homeGoals ? `${away} wins!` : "It's a draw!";
+                showToast(`Match logged: ${home} ${homeGoals} - ${awayGoals} ${away}. ${label}`, 'success');
+            } catch (err) {
+                console.error("Submit match error:", err);
+                showToast('Network error submitting match', 'danger');
             }
-
-            matches.push({ home, away, homeGoals, awayGoals, timestamp: Date.now() });
-            saveMatches();
-            renderAll();
-
-            // Reset inputs
-            document.getElementById('homeGoals').value = 0;
-            document.getElementById('awayGoals').value = 0;
-
-            const label = homeGoals > awayGoals ? `${home} wins!` : awayGoals > homeGoals ? `${away} wins!` : "It's a draw!";
-            showToast(`Match logged: ${home} ${homeGoals} - ${awayGoals} ${away}. ${label}`, 'success');
         }
 
         /* ====== DELETE MATCH ====== */
-        function deleteMatch(idx) {
-            if (!confirm(`Delete match #${idx + 1}?`)) return;
-            matches.splice(idx, 1);
-            saveMatches();
-            renderAll();
-            showToast('Match deleted.', 'info');
+        async function deleteMatch(id) {
+            if (!confirm(`Delete this match result?`)) return;
+            try {
+                await fetch(`${API_URL}/matches/${id}`, { method: 'DELETE' });
+                await loadData();
+                renderAll();
+                showToast('Match deleted.', 'info');
+            } catch (err) {
+                showToast('Error deleting match', 'danger');
+            }
         }
 
         /* ====== CLEAR ALL ====== */
-        function clearAllMatches() {
-            if (!confirm('⚠️ Delete ALL match results? This cannot be undone.')) return;
-            matches = [];
-            saveMatches();
-            renderAll();
-            showToast('All matches cleared.', 'info');
+        async function clearAllMatches() {
+            showToast('Clear all is handled by the Discord bot !resetTournament command.', 'danger');
         }
 
         /* ====== AUTO-FILL BRACKET ====== */
@@ -781,9 +827,11 @@
                 txt += `${i + 1}. ${s.name.padEnd(10)} ${String(s.p).padStart(2)}  ${String(s.w).padStart(2)}  ${String(s.d).padStart(2)}  ${String(s.l).padStart(2)}  ${String(s.gf).padStart(3)} ${String(s.ga).padStart(3)} ${String(gd).padStart(3)}  ${String(pts).padStart(4)}\n`;
             });
 
+            const playedMatches = matches.filter(m => m.played).sort((a, b) => new Date(a.playedAt) - new Date(b.playedAt));
+
             txt += '\n📜 MATCH RESULTS\n';
             txt += '─────────────────────────────────\n';
-            matches.forEach((m, i) => {
+            playedMatches.forEach((m, i) => {
                 txt += `#${i + 1}: ${m.home} ${m.homeGoals} - ${m.awayGoals} ${m.away}\n`;
             });
 
@@ -798,14 +846,7 @@
 
         /* ====== RESET ====== */
         function resetTournament() {
-            if (!confirm('⚠️ Reset the ENTIRE tournament? All matches, bracket, everything.')) return;
-            matches = [];
-            bracket = {};
-            localStorage.removeItem('fc26tournament_matches');
-            localStorage.removeItem('fc26tournament_bracket');
-            document.querySelectorAll('[data-ko]').forEach(inp => inp.value = '');
-            renderAll();
-            showToast('Tournament reset!', 'info');
+            showToast('Use the !resetTournament command in Discord to reset.', 'info');
         }
 
         /* ====== TOAST NOTIFICATIONS ====== */
@@ -827,14 +868,33 @@
             renderStandings();
             renderFixtureTracker();
             renderMatchHistory();
-            document.getElementById('matchCountBadge').textContent = matches.length;
+            document.getElementById('matchCountBadge').textContent = matches.filter(m => m.played).length;
+            
+            // Also update total matches summary header
+            const totalMatchesLabel = document.querySelector('header span.text-xs.px-3:nth-child(2)');
+            if (totalMatchesLabel) {
+                totalMatchesLabel.textContent = `${MANAGERS.length} Managers · ${MATCHES_PER_PAIRING} Legs`;
+            }
         }
 
         /* ====== INIT ====== */
-        function init() {
-            loadData();
+        async function init() {
+            await loadData();
             renderAll();
             loadBracketInputs();
+            
+            // Auto refresh data every 30 seconds
+            setInterval(async () => {
+                const activeEl = document.activeElement;
+                const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT');
+                
+                // Only refresh if user is not actively typing in bracket or match logger
+                if (!isTyping) {
+                    await loadData();
+                    renderAll();
+                    loadBracketInputs();
+                }
+            }, 30000);
         }
 
         init();
